@@ -37,42 +37,48 @@ namespace RelayLayer
         private static void StartFaking()
         {
             Input inp = new Input();
-                while (true)
+            while (true)
+            {
+                DateTime startSecond = new DateTime(1990, 1, 1);
+                List<DataModel> dataSet = new List<DataModel>();
+                bool newSecond = false;
+                while (newSecond == false)
                 {
-                    DateTime startSecond = new DateTime(1990, 1, 1);
-                    List<DataModel> dataSet = new List<DataModel>();
-                    bool newSecond = false;
-                    while (newSecond == false)
-                    {
-                        DataModel data = inp.StartFakingData();
-                        if (dataSet.Count() == 0)
-                        {
-                            startSecond = data.TimeOfData;
-                        }
-                        if (dataSet.Count > 2 && DateTime.Compare(startSecond.AddSeconds(1), data.TimeOfData) < 0)
-                        {
-                            int tempSum = 0;
-                            int lightSum = 0;
-                            int nrOfData = dataSet.Count;
-                            foreach (DataModel datas in dataSet)
-                            {
-                                tempSum += datas.Temperature;
-                                lightSum += datas.Light;
-                            }
-                            DataModel second = new DataModel()
-                            {
-                                SensorName = data.SensorName,
-                                TimeOfData = startSecond,
-                                Temperature = tempSum/nrOfData,
-                                Light = lightSum/nrOfData
-                            };
+                    DataModel data = inp.StartFakingData();
 
-                            sendToWebService(second);
-                            newSecond = true;
-                        }
-                        dataSet.Add(data);
+                    if (!dataSet.Any())
+                    {
+                        startSecond = data.TimeOfData;
                     }
+
+                    //Checks if the dataset has enough data to average out and if one second has passed
+                    if (dataSet.Count > 2 && DateTime.Compare(startSecond.AddSeconds(1), data.TimeOfData) < 0)
+                    //Does averages on temperature and light, sends data and makes sure the loop doesn't restart
+                    {
+                        int tempSum = 0;
+                        int lightSum = 0;
+                        int nrOfData = dataSet.Count;
+
+                        foreach (DataModel datas in dataSet)
+                        {
+                            tempSum += datas.Temperature;
+                            lightSum += datas.Light;
+                        }
+
+                        DataModel second = new DataModel()
+                        {
+                            SensorName = data.SensorName,
+                            TimeOfData = startSecond,
+                            Temperature = tempSum/nrOfData,
+                            Light = lightSum/nrOfData
+                        };
+
+                        sendToWebService(second);
+                        newSecond = true;
+                    }
+                    dataSet.Add(data);
                 }
+            }
         }
             });
 
