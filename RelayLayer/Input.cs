@@ -16,6 +16,16 @@ namespace RelayLayer
         //The port that the broadcast is on [hard-coded]
         private const int listenPort = 7000;
 
+        //Sensors
+        private bool _isOvenSensorOn;
+        private bool _isOvenOn;
+        private bool _isRoomSensorOn;
+
+        //SensorValues
+        private int _ovenSensorTemp;
+        private int _roomSensorTemp;
+        private int _roomSensorLight;
+
         /// <summary>
         /// Starts listening for the broadcast from the Rasberry Pi
         /// </summary>
@@ -53,38 +63,37 @@ namespace RelayLayer
         /// <summary>
         /// Starts giving fake data, for use within development while sensor is not running
         /// </summary>
-        public DataModel StartFakingData()
+        public DataModel[] FakeData()
         {
             bool done = false;
+            Task.Run(() => StartFakeRoomSensor());
             while (!done)
             {
-                //The emulation of sensor telemetry
-                //TODO: Make this more realistic
-                Random rng = new Random();
                 DateTime currTime = DateTime.Now;
-                int currLight = rng.Next(200,240);
+                #region OvenFaking
+                Random rng = new Random();
+                int currLight = 0;
                 int currTemp = rng.Next(200,240);
-
-                var templateBroadcast = "RoomSensor Broadcasting\r\n" +
-                                                 "Location: Fake room\r\n" +
-                                                 "Platform: Linux-3.12.28+-armv6l-with-debian-7.6\r\n" +
-                                                 "Machine: armv6l\r\n" +
-                                                 "Potentiometer(8bit): 129\r\n" +
-                                                 "Light Sensor(8bit): "+ currLight +"\r\n" +
-                                                 "Temperature(8bit): " + currTemp + "\r\n" +
-                                                 "Movement last detected: " + DateTime.Now + "\r\n";
-                //Console.WriteLine("Faking data.");
-                //Console.WriteLine("Received broadcast from {0} :\n {1}\n",
-                //"1.1.1.1",
-                //broadCastFromTeacherLounge);
-                DataModel data = new DataModel()
+                DataModel ovenData = new DataModel()
                 {
                     Light = currLight,
                     Temperature = currTemp,
                     TimeOfData = currTime,
-                    SensorName = "Fake Sensor"
+                    SensorName = "Fake Oven Sensor"
                 };
-                return data;
+                #endregion
+                #region RoomFaking
+                DataModel roomData = new DataModel()
+                {
+                    Light = _roomSensorLight,
+                    Temperature = _roomSensorTemp,
+                    TimeOfData = currTime,
+                    SensorName = "Fake Room Sensor"
+                };
+                #endregion
+
+                DataModel[] datas = new DataModel[2] {ovenData, roomData};
+                return datas;
             }
             return null;
         }
@@ -105,6 +114,46 @@ namespace RelayLayer
         public void StartOven()
         {
             throw new NotImplementedException("Talk to Lárus Þór. Bring him a candy, he might bite you if you don't.");
+        }
+
+        /// <summary>
+        /// Starts emulating reception of data from a sensor in an ordinary room.
+        /// Has fluctuating room temperature (21.5°C average)
+        /// </summary>
+        public void StartFakeRoomSensor()
+        {
+            _isRoomSensorOn = true;
+            const int avgTemp = 215;
+            int avgLightOn = 230;
+            int avgLightOff = 10;
+            bool lightsOn = true;
+            int currentTemp = avgTemp;
+            int currentLight = avgLightOn;
+            Random rng = new Random();
+            while (_isRoomSensorOn)
+            {
+                int roll = rng.Next(1000);
+                if (roll < 140)
+                {
+                    currentTemp += rng.Next(-5,5);
+                }
+                if (roll < 4)
+                {
+                    if (lightsOn)
+                    {
+                        currentLight = avgLightOff;
+                        lightsOn = false;
+                    }
+                    else
+                    {
+                        currentLight = avgLightOn;
+                        lightsOn = true;
+                    }
+                    currentLight += rng.Next(0, 2);
+                }
+                _roomSensorTemp = currentTemp;
+                _roomSensorLight = currentLight;
+            }
         }
     }
 }
