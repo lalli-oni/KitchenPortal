@@ -25,7 +25,7 @@ namespace RelayLayer
                 switch (cmdInput.ToLower())
                 {
                     case "f":
-                        StartFaking();
+                        Task.Run(() => StartFaking());
                         break;
                 }
             }
@@ -34,8 +34,6 @@ namespace RelayLayer
         private static void StartFaking()
         {
             Input inp = new Input();
-            Task.Run(() =>
-            {
                 while (true)
                 {
                     DateTime startSecond = new DateTime(1990, 1, 1);
@@ -72,7 +70,6 @@ namespace RelayLayer
                         dataSet.Add(data);
                     }
                 }
-            });
         }
 
         private static void sendToWebService(DataModel secData)
