@@ -55,12 +55,12 @@ namespace RelayLayer
                             int lightSum = 0;
                             int nrOfData = dataSet.Count;
                             foreach (DataModel datas in dataSet)
-                            {
+            {
                                 tempSum += datas.Temperature;
                                 lightSum += datas.Light;
                             }
                             DataModel second = new DataModel()
-                            {
+            {
                                 SensorName = data.SensorName,
                                 TimeOfData = startSecond,
                                 Temperature = tempSum/nrOfData,
@@ -71,9 +71,10 @@ namespace RelayLayer
                             newSecond = true;
                         }
                         dataSet.Add(data);
-                    }
-                }
         }
+        }
+        }
+            });
 
         /// <summary>
         /// Sends the data average of a second to the Web Service on the Cloud
@@ -85,4 +86,5 @@ namespace RelayLayer
             Console.WriteLine("Data sent: " + secData.ToString());
         }
     }
+}
 }
