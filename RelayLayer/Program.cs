@@ -35,7 +35,7 @@ namespace RelayLayer
         /// Fakes data input, averages each second and sends to Web Service
         /// </summary>
         private static void StartFaking()
-            {
+        {
             Input inp = new Input();
                 while (true)
                 {
