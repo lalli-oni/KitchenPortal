@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,69 +11,53 @@ namespace RelayLayer
 {
     class Program
     {
-        //The port that the broadcast is on [hard-coded]
-        private const int listenPort = 7000;
-
-        /// <summary>
-        /// Starts listening for the broadcast from the Rasberry Pi
-        /// </summary>
-        private static void StartListener()
-        {
-            bool done = false;
-            //Starts listening on the specific port
-            UdpClient listener = new UdpClient(listenPort);
-            //Finds any IPAdrress broadcasting on the specific port.
-            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
-
-            try
-            {
-                while (!done)
-                {
-                    Console.WriteLine("Waiting for broadcast");
-                    byte[] bytes = listener.Receive(ref groupEP);
-
-                    Console.WriteLine("Received broadcast from {0} :\n {1}\n",
-                        groupEP.ToString(),
-                        Encoding.ASCII.GetString(bytes, 0, bytes.Length));
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            finally
-            {
-                listener.Close();
-            }
-        }
-
-        /// <summary>
-        /// Starts emulating reception of data from a sensor in an oven.
-        /// Just starts receiving from the sensor, use StartOven() to start "heating it up"
-        /// </summary>
-        public void StartOvenSensor()
-        {
-            throw new NotImplementedException("Talk to Lárus Þór. Bring him a candy, he might bite you if you don't.");
-        }
-
-        /// <summary>
-        /// Starts "heating up" the virtual oven.
-        /// Just starts "heating it up", use StartOvenSensor() to start receiving data.
-        /// </summary>
-        public void StartOven()
-        {
-            throw new NotImplementedException("Talk to Lárus Þór. Bring him a candy, he might bite you if you don't.");
-        }
-
         /// <summary>
         /// Entry point
         /// </summary>
         /// <param name="args">Command line arguments</param>
         static void Main(string[] args)
         {
-            StartListener();
-            Console.ReadLine();
+            Input inp = new Input();
+            Processor proc = new Processor();
+            Output outp = new Output();
+            string cmdInput = "";
+
+            Task.Run(() =>
+            {
+                List<long[]> dataSet = new List<long[]>();
+                while (true)
+                {
+                    long[] data = inp.StartFakingData().Result;
+                    DateTime startSecond = DateTime.FromBinary(data[0]);
+                    while (true)
+                    {
+                        DateTime currTime = DateTime.FromBinary(data[0]);
+                        int i = DateTime.Compare(startSecond.AddSeconds(1), currTime);
+                        if (dataSet.Count > 2 && DateTime.Compare(startSecond.AddSeconds(1), currTime) < 0)
+                        {
+                            long timeSum = 0;
+                            long tempSum = 0;
+                            long lightSum = 0;
+                            int nrOfData = dataSet.Count;
+                            foreach (long[] datas in dataSet)
+                            {
+                                timeSum += datas[0];
+                                tempSum += datas[1];
+                                lightSum += datas[2];
+                            }
+                            long[] second = { timeSum / nrOfData, tempSum / nrOfData, lightSum / nrOfData };
+
+                            outp.sendToWebService(second);
+                        }
+                        dataSet.Add(data);
+                    }
+                }
+            });
+
+            while (cmdInput.ToLower() != "x")
+            {
+                Console.ReadLine();
+            }
         }
     }
 }
