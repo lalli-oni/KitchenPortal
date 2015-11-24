@@ -24,12 +24,7 @@ namespace TableDataManagerSample
         }
         public static void Main(string[] args)
         {
-           //SensorEntity s = new SensorEntity("ROOM",DateTime.Parse("24. 11. 2015 10:55:31"));
-           //s.teperature = 20;
-           //s.light = 30;
-           // insert(s);       
-           //   RetrieveEntityUsingPointQueryAsync(s.PartitionKey, s.RowKey);
-           //   PartitionScanAsync(GetTable(), s.PartitionKey);          
+           
         }
 
         /// <summary>
@@ -247,8 +242,9 @@ namespace TableDataManagerSample
         /// </summary>
         /// <param name="table">Sample table name</param>
         /// <param name="partitionKey">The partition within which to search</param>
-        private static async Task PartitionScanAsync(CloudTable table, string partitionKey)
+        private static async Task PartitionScanAsync(string partitionKey)
         {
+            CloudTable table = GetTable();
             TableQuery<SensorEntity> partitionScanQuery = new TableQuery<SensorEntity>().Where
                 (TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
 
