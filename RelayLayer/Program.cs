@@ -18,9 +18,22 @@ namespace RelayLayer
         /// <param name="args">Command line arguments</param>
         static void Main(string[] args)
         {
-            Input inp = new Input();
             string cmdInput = "";
+            while (cmdInput.ToLower() != "x")
+            {
+                cmdInput = Console.ReadLine();
+                switch (cmdInput.ToLower())
+                {
+                    case "f":
+                        StartFaking();
+                        break;
+                }
+            }
+        }
 
+        private static void StartFaking()
+        {
+            Input inp = new Input();
             Task.Run(() =>
             {
                 while (true)
@@ -45,7 +58,13 @@ namespace RelayLayer
                                 tempSum += datas.Temperature;
                                 lightSum += datas.Light;
                             }
-                            DataModel second = new DataModel() { TimeOfData = startSecond, Temperature = tempSum / nrOfData, Light = lightSum / nrOfData };
+                            DataModel second = new DataModel()
+                            {
+                                SensorName = data.SensorName,
+                                TimeOfData = startSecond,
+                                Temperature = tempSum/nrOfData,
+                                Light = lightSum/nrOfData
+                            };
 
                             sendToWebService(second);
                             newSecond = true;
@@ -54,11 +73,6 @@ namespace RelayLayer
                     }
                 }
             });
-
-            while (cmdInput.ToLower() != "x")
-            {
-                Console.ReadLine();
-            }
         }
 
         private static void sendToWebService(DataModel secData)
