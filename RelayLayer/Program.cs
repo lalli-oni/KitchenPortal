@@ -35,7 +35,7 @@ namespace RelayLayer
         /// Fakes data input, averages each second and sends to Web Service
         /// </summary>
         private static void StartFaking()
-        {
+            {
             Input inp = new Input();
                 while (true)
                 {
@@ -55,7 +55,7 @@ namespace RelayLayer
                             int lightSum = 0;
                             int nrOfData = dataSet.Count;
                             foreach (DataModel datas in dataSet)
-            {
+                            {
                                 tempSum += datas.Temperature;
                                 lightSum += datas.Light;
                             }
@@ -71,8 +71,8 @@ namespace RelayLayer
                             newSecond = true;
                         }
                         dataSet.Add(data);
-        }
-        }
+                    }
+                }
         }
             });
 
@@ -82,9 +82,14 @@ namespace RelayLayer
         /// </summary>
         /// <param name="secData">Holds the average data for each second, the time when it's gotten and the name of sensor</param>
         private static void sendToWebService(DataModel secData)
+            {
+            Console.WriteLine("Data sent: " + secData.ToString());
+            }
+        }
+
+        private static void sendToWebService(DataModel secData)
         {
             Console.WriteLine("Data sent: " + secData.ToString());
         }
     }
-}
 }
