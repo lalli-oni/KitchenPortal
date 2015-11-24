@@ -8,7 +8,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace DataTableStorage.Model
 {
-    class SensorEntity : TableEntity
+   public class SensorEntity : TableEntity
     {
         public SensorEntity() { }
 

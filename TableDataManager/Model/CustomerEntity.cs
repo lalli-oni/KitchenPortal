@@ -1,9 +1,8 @@
 ﻿
-namespace TableDataManagerSample.Model
-{
-    using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage.Table;
 
-    
+namespace DataTableStorage.Model
+{
     public class CustomerEntity : TableEntity
     {
         // Your entity type must expose a parameter-less constructor

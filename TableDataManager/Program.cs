@@ -1,17 +1,14 @@
-﻿using DataTableStorage.Model;
-namespace TableDataManagerSample
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using DataTableStorage.Model;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
+
+namespace DataTableStorage
 {
-    using TableDataManagerSample.Model;
-    using Microsoft.WindowsAzure;
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Table;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Threading.Tasks;
-
-   
-
     public class Program
     {       
         internal const string TableName = "SensorData";
@@ -117,15 +114,16 @@ namespace TableDataManagerSample
             return insertedSensorData;
         }
 
-        private static void insert(SensorEntity s)
+        public static void insert(SensorEntity s)
         {
             CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference(TableName);
-
-            
+            if (s!=null)
+            {
                 TableOperation operation = TableOperation.Insert(s);
-                table.Execute(operation);             
+                table.Execute(operation);
+            }                                            
         }
         /// <summary>
         /// Demonstrate the most efficient storage query - the point query - where both partition key and row key are specified. 
@@ -242,7 +240,7 @@ namespace TableDataManagerSample
         /// </summary>
         /// <param name="table">Sample table name</param>
         /// <param name="partitionKey">The partition within which to search</param>
-        private static async Task PartitionScanAsync(string partitionKey)
+        public static async Task PartitionScanAsync(string partitionKey)
         {
             CloudTable table = GetTable();
             TableQuery<SensorEntity> partitionScanQuery = new TableQuery<SensorEntity>().Where

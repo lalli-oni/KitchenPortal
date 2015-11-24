@@ -5,6 +5,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using DataTableStorage;
+using DataTableStorage.Model;
 
 namespace WCFServiceWebRole1
 {
@@ -28,6 +30,14 @@ namespace WCFServiceWebRole1
                 composite.StringValue += "Suffix";
             }
             return composite;
+        }
+
+      
+
+
+        public void SaveData(DataTableStorage.Model.SensorEntity sensor)
+        {
+           Program.insert(sensor);           
         }
     }
 }

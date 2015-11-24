@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace WCFServiceWebRole1
 {
@@ -18,6 +19,9 @@ namespace WCFServiceWebRole1
 
         [OperationContract]
         CompositeType GetDataUsingDataContract(CompositeType composite);
+
+        [OperationContract]
+        void SaveData(DataTableStorage.Model.SensorEntity sensor);
 
         // TODO: Add your service operations here
     }
@@ -42,6 +46,20 @@ namespace WCFServiceWebRole1
         {
             get { return stringValue; }
             set { stringValue = value; }
+        } 
+    }
+    public class SensorEntity : TableEntity
+    {    
+
+        public SensorEntity(string type, DateTime timeOfData)
+        {
+            this.PartitionKey = type;
+            this.RowKey = timeOfData.ToString();
         }
+        [DataMember]
+
+        public int teperature { get; set; }
+
+        public int light { get; set; }
     }
 }
