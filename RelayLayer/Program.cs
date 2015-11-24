@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.Edm;
 
 namespace RelayLayer
 {
@@ -18,36 +19,36 @@ namespace RelayLayer
         static void Main(string[] args)
         {
             Input inp = new Input();
-            Processor proc = new Processor();
-            Output outp = new Output();
             string cmdInput = "";
 
             Task.Run(() =>
             {
-                List<long[]> dataSet = new List<long[]>();
                 while (true)
                 {
-                    long[] data = inp.StartFakingData().Result;
-                    DateTime startSecond = DateTime.FromBinary(data[0]);
-                    while (true)
+                    DateTime startSecond = new DateTime(1990, 1, 1);
+                    List<DataModel> dataSet = new List<DataModel>();
+                    bool newSecond = false;
+                    while (newSecond == false)
                     {
-                        DateTime currTime = DateTime.FromBinary(data[0]);
-                        int i = DateTime.Compare(startSecond.AddSeconds(1), currTime);
-                        if (dataSet.Count > 2 && DateTime.Compare(startSecond.AddSeconds(1), currTime) < 0)
+                        DataModel data = inp.StartFakingData();
+                        if (dataSet.Count() == 0)
                         {
-                            long timeSum = 0;
-                            long tempSum = 0;
-                            long lightSum = 0;
+                            startSecond = data.TimeOfData;
+                        }
+                        if (dataSet.Count > 2 && DateTime.Compare(startSecond.AddSeconds(1), data.TimeOfData) < 0)
+                        {
+                            int tempSum = 0;
+                            int lightSum = 0;
                             int nrOfData = dataSet.Count;
-                            foreach (long[] datas in dataSet)
+                            foreach (DataModel datas in dataSet)
                             {
-                                timeSum += datas[0];
-                                tempSum += datas[1];
-                                lightSum += datas[2];
+                                tempSum += datas.Temperature;
+                                lightSum += datas.Light;
                             }
-                            long[] second = { timeSum / nrOfData, tempSum / nrOfData, lightSum / nrOfData };
+                            DataModel second = new DataModel() { TimeOfData = startSecond, Temperature = tempSum / nrOfData, Light = lightSum / nrOfData };
 
-                            outp.sendToWebService(second);
+                            sendToWebService(second);
+                            newSecond = true;
                         }
                         dataSet.Add(data);
                     }
@@ -58,6 +59,11 @@ namespace RelayLayer
             {
                 Console.ReadLine();
             }
+        }
+
+        private static void sendToWebService(DataModel secData)
+        {
+            Console.WriteLine("Data sent: " + secData.ToString());
         }
     }
 }
