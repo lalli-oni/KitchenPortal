@@ -1,19 +1,4 @@
-﻿//----------------------------------------------------------------------------------
-// Microsoft Developer & Platform Evangelism
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//
-// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, 
-// EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES 
-// OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
-//----------------------------------------------------------------------------------
-// The example companies, organizations, products, domain names,
-// e-mail addresses, logos, people, places, and events depicted
-// herein are fictitious.  No association with any real company,
-// organization, product, domain name, email address, logo, person,
-// places, or events is intended or should be inferred.
-//----------------------------------------------------------------------------------
-
+﻿using DataTableStorage.Model;
 namespace TableDataManagerSample
 {
     using TableDataManagerSample.Model;
@@ -25,65 +10,21 @@ namespace TableDataManagerSample
     using System.Net;
     using System.Threading.Tasks;
 
-    /// <summary>
-    /// Azure Table Service Sample - Demonstrates how to perform common tasks using the Microsoft Azure Table storage 
-    /// including creating a table, CRUD operations, batch operations and different querying techniques. 
-    /// 
-    /// Note: This sample uses the .NET 4.5 asynchronous programming model to demonstrate how to call the Storage Service using the 
-    /// storage client libraries asynchronous API's. When used in real applications this approach enables you to improve the 
-    /// responsiveness of your application. Calls to the storage service are prefixed by the await keyword. 
-    /// 
-    /// Documentation References: 
-    /// - What is a Storage Account - http://azure.microsoft.com/en-us/documentation/articles/storage-whatis-account/
-    /// - Getting Started with Tables - http://azure.microsoft.com/en-us/documentation/articles/storage-dotnet-how-to-use-tables/
-    /// - Table Service Concepts - http://msdn.microsoft.com/en-us/library/dd179463.aspx
-    /// - Table Service REST API - http://msdn.microsoft.com/en-us/library/dd179423.aspx
-    /// - Table Service C# API - http://go.microsoft.com/fwlink/?LinkID=398944
-    /// - Storage Emulator - http://msdn.microsoft.com/en-us/library/azure/hh403989.aspx
-    /// - Asynchronous Programming with Async and Await  - http://msdn.microsoft.com/en-us/library/hh191443.aspx
-    /// </summary>
+   
 
     public class Program
-    {
-        // *************************************************************************************************************************
-        // Instructions: This sample can be run using either the Azure Storage Emulator that installs as part of this SDK - or by
-        // updating the App.Config file with your AccountName and Key. 
-        // 
-        // To run the sample using the Storage Emulator (default option)
-        //      1. Start the Azure Storage Emulator (once only) by pressing the Start button or the Windows key and searching for it
-        //         by typing "Azure Storage Emulator". Select it from the list of applications to start it.
-        //      2. Set breakpoints and run the project using F10. 
-        // 
-        // To run the sample using the Storage Service
-        //      1. Open the app.config file and comment out the connection string for the emulator (UseDevelopmentStorage=True) and
-        //         uncomment the connection string for the storage service (AccountName=[]...)
-        //      2. Create a Storage Account through the Azure Portal and provide your [AccountName] and [AccountKey] in 
-        //         the App.Config file. See http://go.microsoft.com/fwlink/?LinkId=325277 for more information
-        //      3. Set breakpoints and run the project using F10. 
-        // 
-        // *************************************************************************************************************************
-        internal const string TableName = "customer";
+    {       
+        internal const string TableName = "SensorData";
 
+        public static CloudTable GetTable()
+        {
+            CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            return  tableClient.GetTableReference(TableName);
+        }
         public static void Main(string[] args)
         {
-            Console.WriteLine("Azure Storage Table Sample\n");
-
-            // Create or reference an existing table
-            CloudTable table = CreateTableAsync().Result;
-
-            // Demonstrate basic CRUD functionality 
-            BasicTableOperationsAsync(table).Wait();
-
-            // Demonstrate advanced functionality such as batch operations and segmented multi-entity queries
-            AdvancedTableOperationsAsync(table).Wait();
-
-            // When you delete a table it could take several seconds before you can recreate a table with the same
-            // name - hence to enable you to run the demo in quick succession the table is not deleted. If you want 
-            // to delete the table uncomment the line of code below. 
-            //DeleteTableAsync(table).Wait();
-
-            Console.WriteLine("Press any key to exit");
-            Console.Read();
+           
         }
 
         /// <summary>
@@ -123,58 +64,8 @@ namespace TableDataManagerSample
             return table;
         }
 
-        /// <summary>
-        /// Demonstrate basic Table CRUD operations. 
-        /// </summary>
-        /// <param name="table">The sample table</param>
-        private static async Task BasicTableOperationsAsync(CloudTable table)
-        {
-            // Create an instance of a customer entity. See the Model\CustomerEntity.cs for a description of the entity.
-            CustomerEntity customer = new CustomerEntity("Harp", "Walter")
-            {
-                Email = "Walter@contoso.com",
-                PhoneNumber = "425-555-0101"
-            };
-
-            // Demonstrate how to Update the entity by changing the phone number
-            Console.WriteLine("2. Update an existing Entity using the InsertOrMerge Upsert Operation.");
-            customer.PhoneNumber = "425-555-0105";
-            customer = await InsertOrMergeEntityAsync(table, customer);
-
-            // Demonstrate how to Read the updated entity using a point query 
-            Console.WriteLine("3. Reading the updated Entity.");
-            customer = await RetrieveEntityUsingPointQueryAsync(table, "Harp", "Walter");
-
-            // Demonstrate how to Delete an entity
-            Console.WriteLine("4. Delete the entity. ");
-            await DeleteEntityAsync(table, customer);
-        }
-
-        /// <summary>
-        /// Demonstrate advanced table functionality including batch operations and segmented queries
-        /// </summary>
-        /// <param name="table">The sample table</param>
-        private static async Task AdvancedTableOperationsAsync(CloudTable table)
-        {
-            // Demonstrate upsert and batch table operations
-            Console.WriteLine("4. Inserting a batch of entities. ");
-            await BatchInsertOfCustomerEntitiesAsync(table);
-
-            // Query a range of data within a partition
-            Console.WriteLine("5. Retrieving entities with surname of Smith and first names >= 1 and <= 75");
-            await PartitionRangeQueryAsync(table, "Smith", "0001", "0075");
-
-            // Query for all the data within a partition 
-            Console.WriteLine("6. Retrieve entities with surname of Smith.");
-            await PartitionScanAsync(table, "Smith");
-        }
-
-        /// <summary>
-        /// Validate the connection string information in app.config and throws an exception if it looks like 
-        /// the user hasn't updated this to valid values. 
-        /// </summary>
-        /// <param name="storageConnectionString">Connection string for the storage service or the emulator</param>
-        /// <returns>CloudStorageAccount object</returns>
+    
+        
         private static CloudStorageAccount CreateStorageAccountFromConnectionString(string storageConnectionString)
         {
             CloudStorageAccount storageAccount;
@@ -207,39 +98,55 @@ namespace TableDataManagerSample
         /// <param name="table">The sample table name</param>
         /// <param name="entity">The entity to insert or merge</param>
         /// <returns></returns>
-        private static async Task<CustomerEntity> InsertOrMergeEntityAsync(CloudTable table, CustomerEntity entity)
+        private static async Task<SensorEntity> InsertOrMergeEntityAsync(SensorEntity sensorData)
         {
-            if (entity == null)
+            CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableName);
+            if (sensorData == null)
             {
-                throw new ArgumentNullException("entity");
+                throw new ArgumentNullException("sensorData");
             }
 
             // Create the InsertOrReplace  TableOperation
-            TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(entity);
+            TableOperation insertOrMergeOperation = TableOperation.InsertOrMerge(sensorData);
 
             // Execute the operation.
             TableResult result = await table.ExecuteAsync(insertOrMergeOperation);
-            CustomerEntity insertedCustomer = result.Result as CustomerEntity;
-            return insertedCustomer;
+            SensorEntity insertedSensorData = result.Result as SensorEntity;
+            return insertedSensorData;
         }
 
+        private static void insert(SensorEntity s)
+        {
+            CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableName);
+
+            
+                TableOperation operation = TableOperation.Insert(s);
+                table.Execute(operation);             
+        }
         /// <summary>
         /// Demonstrate the most efficient storage query - the point query - where both partition key and row key are specified. 
         /// </summary>
         /// <param name="table">Sample table name</param>
         /// <param name="partitionKey">Partition key - ie - last name</param>
         /// <param name="rowKey">Row key - ie - first name</param>
-        private static async Task<CustomerEntity> RetrieveEntityUsingPointQueryAsync(CloudTable table, string partitionKey, string rowKey)
+        private static async Task<SensorEntity> RetrieveEntityUsingPointQueryAsync(string partitionKey, string rowKey)
         {
-            TableOperation retrieveOperation = TableOperation.Retrieve<CustomerEntity>(partitionKey, rowKey);
+            CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference(TableName);
+            TableOperation retrieveOperation = TableOperation.Retrieve<SensorEntity>(partitionKey, rowKey);
             TableResult result = await table.ExecuteAsync(retrieveOperation);
-            CustomerEntity customer = result.Result as CustomerEntity;
-            if (customer != null)
+            SensorEntity sensor = result.Result as SensorEntity;
+            if (sensor != null)
             {
-                Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", customer.PartitionKey, customer.RowKey, customer.Email, customer.PhoneNumber);
+                Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", sensor.PartitionKey , sensor.RowKey, sensor.teperature, sensor.light);
             }
 
-            return customer;
+            return sensor;
         }
 
         /// <summary>
@@ -335,20 +242,21 @@ namespace TableDataManagerSample
         /// </summary>
         /// <param name="table">Sample table name</param>
         /// <param name="partitionKey">The partition within which to search</param>
-        private static async Task PartitionScanAsync(CloudTable table, string partitionKey)
+        private static async Task PartitionScanAsync(string partitionKey)
         {
-            TableQuery<CustomerEntity> partitionScanQuery = new TableQuery<CustomerEntity>().Where
+            CloudTable table = GetTable();
+            TableQuery<SensorEntity> partitionScanQuery = new TableQuery<SensorEntity>().Where
                 (TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
 
             TableContinuationToken token = null;
             // Page through the results
             do
             {
-                TableQuerySegment<CustomerEntity> segment = await table.ExecuteQuerySegmentedAsync(partitionScanQuery, token);
+                TableQuerySegment<SensorEntity> segment = await table.ExecuteQuerySegmentedAsync(partitionScanQuery, token);
                 token = segment.ContinuationToken;
-                foreach (CustomerEntity entity in segment)
+                foreach (SensorEntity entity in segment)
                 {
-                    Console.WriteLine("Customer: {0},{1}\t{2}\t{3}", entity.PartitionKey, entity.RowKey, entity.Email, entity.PhoneNumber);
+                    Console.WriteLine("Customer: {0},{1}\t{2}\t{3}", entity.PartitionKey, entity.RowKey, entity.teperature, entity.light);
                 }
             }
             while (token != null);
