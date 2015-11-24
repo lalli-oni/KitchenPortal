@@ -31,6 +31,9 @@ namespace RelayLayer
             }
         }
 
+        /// <summary>
+        /// Fakes data input, averages each second and sends to Web Service
+        /// </summary>
         private static void StartFaking()
         {
             Input inp = new Input();
@@ -72,6 +75,11 @@ namespace RelayLayer
                 }
         }
 
+        /// <summary>
+        /// Sends the data average of a second to the Web Service on the Cloud
+        /// The web service then updates the information in the database.
+        /// </summary>
+        /// <param name="secData">Holds the average data for each second, the time when it's gotten and the name of sensor</param>
         private static void sendToWebService(DataModel secData)
         {
             Console.WriteLine("Data sent: " + secData.ToString());
