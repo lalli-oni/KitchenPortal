@@ -60,7 +60,7 @@ namespace RelayLayer
                                 lightSum += datas.Light;
                             }
                             DataModel second = new DataModel()
-            {
+                            {
                                 SensorName = data.SensorName,
                                 TimeOfData = startSecond,
                                 Temperature = tempSum/nrOfData,
