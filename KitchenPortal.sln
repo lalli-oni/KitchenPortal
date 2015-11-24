@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{144C61F1-A867-3419-B8C6-78D127253265}") = "KitchenPortalWebService", "KitchenPortalWebService\KitchenPortalWebService.ccproj", "{AC2B9470-D9E8-4B1D-859B-D41BAEA76853}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "KitchenPortalWebService", "KitchenPortalWebService\KitchenPortalWebService.ccproj", "{AC2B9470-D9E8-4B1D-859B-D41BAEA76853}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCFServiceWebRole1", "WCFServiceWebRole1\WCFServiceWebRole1.csproj", "{AB0B8795-2406-4E13-AA23-4F909C88F49C}"
 EndProject
