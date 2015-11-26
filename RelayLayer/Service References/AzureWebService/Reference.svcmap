@@ -22,11 +22,9 @@
     <MetadataSource Address="http://kitchenportal.cloudapp.net/Service1.svc?wsdl" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="96d43f5f-8369-4372-a39d-615a90c48042" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service11.xsd" MetadataType="Schema" ID="8c8c7ca4-7d8c-4000-81d2-57c7b637233f" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd4" />
     <MetadataFile FileName="Service12.xsd" MetadataType="Schema" ID="59debba9-4330-4201-856a-b6d592fa6e38" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="96d43f5f-8369-4372-a39d-615a90c48042" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd3" />
     <MetadataFile FileName="Service13.xsd" MetadataType="Schema" ID="02257ab3-2a72-4e48-bf78-c3296dd5c145" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service14.xsd" MetadataType="Schema" ID="326e8a5b-e1f9-4e58-b34a-e87da3067e0d" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd5" />
     <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="d68e15ff-0efd-493b-b8ca-3fe9ba313a18" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?wsdl" />
     <MetadataFile FileName="Service15.xsd" MetadataType="Schema" ID="12be70a3-2363-446c-9a58-f6fd913d8061" SourceId="1" SourceUrl="http://kitchenportal.cloudapp.net/Service1.svc?xsd=xsd2" />
   </Metadata>

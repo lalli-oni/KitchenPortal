@@ -76,18 +76,24 @@ namespace RelayLayer.AzureWebService {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="SensorEntity", Namespace="http://schemas.datacontract.org/2004/07/DataTableStorage.Model")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DataModel", Namespace="http://schemas.datacontract.org/2004/07/WCFServiceWebRole1.Model")]
     [System.SerializableAttribute()]
-    public partial class SensorEntity : Microsoft.WindowsAzure.Storage.Table.TableEntity, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class DataModel : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int lightField;
+        private int LightField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int teperatureField;
+        private string SensorNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TemperatureField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime TimeOfDataField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -100,27 +106,53 @@ namespace RelayLayer.AzureWebService {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int light {
+        public int Light {
             get {
-                return this.lightField;
+                return this.LightField;
             }
             set {
-                if ((this.lightField.Equals(value) != true)) {
-                    this.lightField = value;
-                    this.RaisePropertyChanged("light");
+                if ((this.LightField.Equals(value) != true)) {
+                    this.LightField = value;
+                    this.RaisePropertyChanged("Light");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int teperature {
+        public string SensorName {
             get {
-                return this.teperatureField;
+                return this.SensorNameField;
             }
             set {
-                if ((this.teperatureField.Equals(value) != true)) {
-                    this.teperatureField = value;
-                    this.RaisePropertyChanged("teperature");
+                if ((object.ReferenceEquals(this.SensorNameField, value) != true)) {
+                    this.SensorNameField = value;
+                    this.RaisePropertyChanged("SensorName");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Temperature {
+            get {
+                return this.TemperatureField;
+            }
+            set {
+                if ((this.TemperatureField.Equals(value) != true)) {
+                    this.TemperatureField = value;
+                    this.RaisePropertyChanged("Temperature");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime TimeOfData {
+            get {
+                return this.TimeOfDataField;
+            }
+            set {
+                if ((this.TimeOfDataField.Equals(value) != true)) {
+                    this.TimeOfDataField = value;
+                    this.RaisePropertyChanged("TimeOfData");
                 }
             }
         }
@@ -152,10 +184,10 @@ namespace RelayLayer.AzureWebService {
         System.Threading.Tasks.Task<RelayLayer.AzureWebService.CompositeType> GetDataUsingDataContractAsync(RelayLayer.AzureWebService.CompositeType composite);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SaveData", ReplyAction="http://tempuri.org/IService1/SaveDataResponse")]
-        void SaveData(RelayLayer.AzureWebService.SensorEntity sensor);
+        void SaveData(RelayLayer.AzureWebService.DataModel data);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SaveData", ReplyAction="http://tempuri.org/IService1/SaveDataResponse")]
-        System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.SensorEntity sensor);
+        System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.DataModel data);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SetReminder", ReplyAction="http://tempuri.org/IService1/SetReminderResponse")]
         int SetReminder(int temperature);
@@ -207,12 +239,12 @@ namespace RelayLayer.AzureWebService {
             return base.Channel.GetDataUsingDataContractAsync(composite);
         }
         
-        public void SaveData(RelayLayer.AzureWebService.SensorEntity sensor) {
-            base.Channel.SaveData(sensor);
+        public void SaveData(RelayLayer.AzureWebService.DataModel data) {
+            base.Channel.SaveData(data);
         }
         
-        public System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.SensorEntity sensor) {
-            return base.Channel.SaveDataAsync(sensor);
+        public System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.DataModel data) {
+            return base.Channel.SaveDataAsync(data);
         }
         
         public int SetReminder(int temperature) {

@@ -57,7 +57,7 @@ namespace RelayLayer
                         SensorName = "Oven",
                         TimeOfData = DateTime.Now
                     };
-                    SendToWebService(datas);
+                    Output.SendToWebService(datas);
                 }
             });
         }
@@ -89,8 +89,8 @@ namespace RelayLayer
                     if (dataSet.Count > 1 && DateTime.Compare(startSecond.AddSeconds(1), sensorData[0].TimeOfData) < 0)
                     {
                         //Averages the whole data set for oven and room data seperately
-                        DataModel[] dataToSend = AverageDataSet(dataSet);
-                        SendToWebService(dataToSend);
+                        DataModel[] dataToSend = DataProcessor.AverageDataSet(dataSet);
+                        Output.SendToWebService(dataToSend);
                         newSecond = true;
                     }
                     dataSet.Add(sensorData);
@@ -142,30 +142,6 @@ namespace RelayLayer
                 tempRoomSum += datas[1].Temperature;
                 lightRoomSum += datas[1].Light;
             }
-
-            int avgOvenTemp = tempOvenSum / nrOfData;
-
-            int avgRoomTemp = tempRoomSum / nrOfData;
-            int avgRoomLight = lightRoomSum / nrOfData;
-
-            DataModel averagedOvenData = new DataModel()
-            {
-                Light = 0,
-                Temperature = avgOvenTemp,
-                SensorName = dataSet[0][0].SensorName,
-                TimeOfData = dataSet[0][0].TimeOfData
-            };
-            DataModel averagedRoomData = new DataModel()
-            {
-                Light = avgRoomTemp,
-                Temperature = avgRoomLight,
-                SensorName = dataSet[0][1].SensorName,
-                TimeOfData = dataSet[0][1].TimeOfData
-            };
-
-            DataModel[] averagedData = new DataModel[2] {averagedOvenData, averagedRoomData};
-
-            return averagedData;
         }
     }
 }
