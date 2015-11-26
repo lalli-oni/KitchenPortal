@@ -156,6 +156,12 @@ namespace RelayLayer.AzureWebService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SaveData", ReplyAction="http://tempuri.org/IService1/SaveDataResponse")]
         System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.SensorEntity sensor);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SetReminder", ReplyAction="http://tempuri.org/IService1/SetReminderResponse")]
+        int SetReminder(int temperature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService1/SetReminder", ReplyAction="http://tempuri.org/IService1/SetReminderResponse")]
+        System.Threading.Tasks.Task<int> SetReminderAsync(int temperature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -207,6 +213,14 @@ namespace RelayLayer.AzureWebService {
         
         public System.Threading.Tasks.Task SaveDataAsync(RelayLayer.AzureWebService.SensorEntity sensor) {
             return base.Channel.SaveDataAsync(sensor);
+        }
+        
+        public int SetReminder(int temperature) {
+            return base.Channel.SetReminder(temperature);
+        }
+        
+        public System.Threading.Tasks.Task<int> SetReminderAsync(int temperature) {
+            return base.Channel.SetReminderAsync(temperature);
         }
     }
 }

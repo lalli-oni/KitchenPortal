@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RelayLayer
@@ -23,13 +24,24 @@ namespace RelayLayer
 
         //SensorValues
         private int _ovenSensorTemp;
+        private Object roomTempLock = new Object();
         private int _roomSensorTemp;
         private int _roomSensorLight;
+
+        public int RoomSensorTemp
+        {
+            get { lock (roomTempLock)
+            {
+                return _roomSensorTemp;
+            }
+            }
+            set { _roomSensorTemp = value; }
+        }
 
         /// <summary>
         /// Starts listening for the broadcast from the Rasberry Pi
         /// </summary>
-        public void StartListener()
+        public DataModel StartRoomListener()
         {
             bool done = false;
             //Starts listening on the specific port
@@ -39,15 +51,21 @@ namespace RelayLayer
 
             try
             {
-                while (!done)
-                {
                     Console.WriteLine("Waiting for broadcast");
                     byte[] bytes = listener.Receive(ref groupEP);
+                    string results = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                    MatchCollection lightResults = Regex.Matches(results, @"\d{3}");
+                    int lightResult = Convert.ToInt16(lightResults[1].Value);
+                    int tempResult = Convert.ToInt16(lightResults[2].Value);
 
-                    Console.WriteLine("Received broadcast from {0} :\n {1}\n",
-                        groupEP.ToString(),
-                        Encoding.ASCII.GetString(bytes, 0, bytes.Length));
-                }
+                    DataModel sensorData = new DataModel()
+                    {
+                        Light = lightResult,
+                        SensorName = "Room",
+                        Temperature = tempResult,
+                        TimeOfData = DateTime.Now
+                    };
+                    return sensorData;
 
             }
             catch (Exception e)
@@ -58,6 +76,7 @@ namespace RelayLayer
             {
                 listener.Close();
             }
+            return null;
         }
 
         /// <summary>
@@ -86,7 +105,7 @@ namespace RelayLayer
                 DataModel roomData = new DataModel()
                 {
                     Light = _roomSensorLight,
-                    Temperature = _roomSensorTemp,
+                    Temperature = RoomSensorTemp,
                     TimeOfData = currTime,
                     SensorName = "Fake Room Sensor"
                 };
@@ -149,9 +168,9 @@ namespace RelayLayer
                         currentLight = avgLightOn;
                         lightsOn = true;
                     }
-                    currentLight += rng.Next(0, 2);
+                    currentLight += rng.Next(-3, 3);
                 }
-                _roomSensorTemp = currentTemp;
+                RoomSensorTemp = currentTemp;
                 _roomSensorLight = currentLight;
             }
         }

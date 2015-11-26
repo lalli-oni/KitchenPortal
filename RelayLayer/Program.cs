@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -14,13 +15,14 @@ namespace RelayLayer
 {
     class Program
     {
+        private static bool _running = false;
         /// <summary>
         /// Entry point
         /// </summary>
         /// <param name="args">Command line arguments</param>
         static void Main(string[] args)
         {
-            Console.WriteLine("Controls: 'F' for fake data, 'X' to quit");
+            Console.WriteLine("Controls: 'F' for fake data, 'S' for teacher sensor and 'X' to quit");
             string cmdInput = "";
             while (cmdInput.ToLower() != "x")
             {
@@ -28,10 +30,36 @@ namespace RelayLayer
                 switch (cmdInput.ToLower())
                 {
                     case "f":
+                        _running = true;
                         Task.Run(() => StartFaking());
+                        break;
+                    case "s":
+                        _running = true;
+                        Task.Run(() => StartListening());
                         break;
                 }
             }
+        }
+
+        private static void StartListening()
+        {
+            Input inp = new Input();
+            Task.Run(() =>
+            {
+                while (_running = true)
+                {
+                    DataModel[] datas = new DataModel[2];
+                    datas[1] = inp.StartRoomListener();
+                    datas[0] = new DataModel()
+                    {
+                        Light = 0,
+                        Temperature = 0,
+                        SensorName = "Oven",
+                        TimeOfData = DateTime.Now
+                    };
+                    SendToWebService(datas);
+                }
+            });
         }
 
         /// <summary>
@@ -78,11 +106,12 @@ namespace RelayLayer
         private static void SendToWebService(DataModel[] secData)
         {
             Console.WriteLine("Data sent: " + secData[0].ToString());
-            //Console.WriteLine("Data sent: " + secData[1].ToString());
+            Console.WriteLine("Data sent: " + secData[1].ToString());
             Service1Client client = new Service1Client();
-            SensorEntity ovenSensorToSend = new SensorEntity() { PartitionKey = "Oven", RowKey = secData[0].TimeOfData.ToString(), light = secData[0].Light, teperature = secData[0].Temperature};
+            SensorEntity ovenSensorToSend = new SensorEntity() { ETag = "*", PartitionKey = "Oven", RowKey = secData[0].TimeOfData.ToString(), light = secData[0].Light, teperature = secData[0].Temperature };
+            SensorEntity roomSensorToSend = new SensorEntity() { ETag = "*", PartitionKey = "Room", RowKey = secData[1].TimeOfData.ToString(), light = secData[1].Light, teperature = secData[1].Temperature };
             client.SaveData(ovenSensorToSend);
-            //Console.ReadLine();
+            Console.ReadLine();
         }
 
         public static DataModel[] AverageDataSet(List<DataModel[]> dataSet)

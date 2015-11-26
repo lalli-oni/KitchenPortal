@@ -28,6 +28,12 @@
   <wsdl:message name="IService1_SaveData_OutputMessage">
     <wsdl:part name="parameters" element="tns:SaveDataResponse" />
   </wsdl:message>
+  <wsdl:message name="IService1_SetReminder_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetReminder" />
+  </wsdl:message>
+  <wsdl:message name="IService1_SetReminder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetReminderResponse" />
+  </wsdl:message>
   <wsdl:portType name="IService1">
     <wsdl:operation name="GetData">
       <wsdl:input wsaw:Action="http://tempuri.org/IService1/GetData" message="tns:IService1_GetData_InputMessage" />
@@ -40,6 +46,10 @@
     <wsdl:operation name="SaveData">
       <wsdl:input wsaw:Action="http://tempuri.org/IService1/SaveData" message="tns:IService1_SaveData_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IService1/SaveDataResponse" message="tns:IService1_SaveData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetReminder">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService1/SetReminder" message="tns:IService1_SetReminder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService1/SetReminderResponse" message="tns:IService1_SetReminder_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IService1" type="tns:IService1">
@@ -64,6 +74,15 @@
     </wsdl:operation>
     <wsdl:operation name="SaveData">
       <soap:operation soapAction="http://tempuri.org/IService1/SaveData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetReminder">
+      <soap:operation soapAction="http://tempuri.org/IService1/SetReminder" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
