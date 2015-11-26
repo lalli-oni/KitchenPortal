@@ -59,6 +59,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Spatial, Version=5.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Spatial.5.7.0\lib\net40\System.Spatial.dll</HintPath>
       <Private>True</Private>
@@ -73,15 +75,58 @@
   <ItemGroup>
     <Compile Include="DataModel.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="Model\SensorEntity.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\AzureWebService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Service References\AzureWebService\RelayLayer.AzureWebService.CompositeType.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AzureWebService\Service1.wsdl" />
+    <None Include="Service References\AzureWebService\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AzureWebService\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AzureWebService\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AzureWebService\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AzureWebService\Service14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AzureWebService\Service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\AzureWebService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AzureWebService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AzureWebService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AzureWebService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
