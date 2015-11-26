@@ -42,4 +42,18 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="SetReminder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="temperature" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetReminderResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SetReminderResult" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

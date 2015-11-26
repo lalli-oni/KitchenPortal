@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace DataTableStorage.Model
+namespace RelayLayer.Model
 {
-    class SensorEntity : TableEntity
+    [DataContract]
+    class SensorEntity
     {
         public SensorEntity() { }
-
-        public SensorEntity(string type, DateTime timeOfData)
-        {
-            this.PartitionKey = type;
-            this.RowKey = timeOfData.ToString();
-        }
         
+        [DataMember]
         public int teperature { get; set; }
+        [DataMember]
         public int light { get; set; }
     }
 }
