@@ -4,9 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Edm;
+using RelayLayer.AzureWebService;
 
 namespace RelayLayer
 {
@@ -77,6 +79,10 @@ namespace RelayLayer
         {
             Console.WriteLine("Data sent: " + secData[0].ToString());
             //Console.WriteLine("Data sent: " + secData[1].ToString());
+            Service1Client client = new Service1Client();
+            SensorEntity ovenSensorToSend = new SensorEntity() { PartitionKey = "Oven", RowKey = secData[0].TimeOfData.ToString(), light = secData[0].Light, teperature = secData[0].Temperature};
+            client.SaveData(ovenSensorToSend);
+            //Console.ReadLine();
         }
 
         public static DataModel[] AverageDataSet(List<DataModel[]> dataSet)
