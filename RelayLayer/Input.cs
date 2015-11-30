@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -49,23 +50,46 @@ namespace RelayLayer
             //Finds any IPAdrress broadcasting on the specific port.
             IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
 
+            //Starts listening or catches any exeption and closes the listener.
             try
             {
-                    Console.WriteLine("Waiting for broadcast");
-                    byte[] bytes = listener.Receive(ref groupEP);
-                    string results = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
-                    MatchCollection lightResults = Regex.Matches(results, @"\d{3}");
-                    int lightResult = Convert.ToInt16(lightResults[1].Value);
-                    int tempResult = Convert.ToInt16(lightResults[2].Value);
+                Console.WriteLine("Waiting for broadcast");
+                //Starts the listening, stops here if nothing is received
+                byte[] bytes = listener.Receive(ref groupEP);
+                //Gets a string out of the ASCII bytes received
+                string results = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                //Makes a regular expression matching any 3 number digits in a row.
+                MatchCollection resultMatches = Regex.Matches(results, @"\d{3}");
+                //Assigns the 2nd match to be the sensor light (1st is potentiometer)
+                int lightResult = Convert.ToInt16(resultMatches[1].Value);
+                //Assigns the 3rd match to be the sensor temperature
+                int tempResult = Convert.ToInt16(resultMatches[2].Value);
 
-                    DataModel sensorData = new DataModel()
-                    {
-                        Light = lightResult,
-                        SensorName = "Room",
-                        Temperature = tempResult,
-                        TimeOfData = DateTime.Now
-                    };
-                    return sensorData;
+                //Check to see if lightResults are valid (0 - 300)
+                //Writes a Trace message
+                //TODO: LOG THIS EVENT
+                if (lightResult < 0 || lightResult > 300)
+                {
+                    Trace.Write(DateTime.Now.ToString() + $"Invalid data received: {lightResult}");
+                }
+
+                //Check to see if tempResult are valid (-10 - 50)
+                //Writes a Trace message
+                //TODO: LOG THIS EVENT
+                if (tempResult < -10 || tempResult > 50)
+                {
+                    Trace.Write(DateTime.Now.ToString() + $"Invalid data received: {tempResult}");
+                }
+
+                //Puts the results into a DataModel for each Sensor Data
+                DataModel sensorData = new DataModel()
+                {
+                    Light = lightResult,
+                    SensorName = "Room",
+                    Temperature = tempResult,
+                    TimeOfData = DateTime.Now
+                };
+                return sensorData;
 
             }
             catch (Exception e)
