@@ -76,7 +76,10 @@ namespace RelayLayer
                 while (!newSecond)
                 {
                     //Gets fake data
-                    DataModel[] sensorData = inp.FakeData();
+                    DataModel data1 = new DataModel() {Light = 200, Temperature = 220, SensorName = "FAKEROOM", TimeOfData = DateTime.Now};
+                    DataModel data2 = new DataModel() { Light = 200, Temperature = 220, SensorName = "FAKEROOM", TimeOfData = DateTime.Now };
+                    DataModel[] sensorData = new DataModel[2] {data1, data2};
+                    //DataModel[] sensorData = inp.FakeData();
 
                     //Checks to see if any data has been collected in this second
                     if (!dataSet.Any())
