@@ -103,6 +103,7 @@ namespace RelayLayer
             return null;
         }
 
+        #region Faking
         /// <summary>
         /// Starts giving fake data, for use within development while sensor is not running
         /// </summary>
@@ -139,24 +140,6 @@ namespace RelayLayer
                 return datas;
             }
             return null;
-        }
-
-        /// <summary>
-        /// Starts emulating reception of data from a sensor in an oven.
-        /// Just starts receiving from the sensor, use StartOven() to start "heating it up"
-        /// </summary>
-        public void StartOvenSensor()
-        {
-            throw new NotImplementedException("Talk to Lárus Þór. Bring him a candy, he might bite you if you don't.");
-        }
-
-        /// <summary>
-        /// Starts "heating up" the virtual oven.
-        /// Just starts "heating it up", use StartOvenSensor() to start receiving data.
-        /// </summary>
-        public void StartOven()
-        {
-            throw new NotImplementedException("Talk to Lárus Þór. Bring him a candy, he might bite you if you don't.");
         }
 
         /// <summary>
@@ -198,5 +181,6 @@ namespace RelayLayer
                 _roomSensorLight = currentLight;
             }
         }
+        #endregion
     }
 }
