@@ -102,6 +102,9 @@
     <Content Include="Service1.svc" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBAImplementations\SQLImplementation.cs" />
+    <Compile Include="DBInterface\DBInterface.cs" />
+    <Compile Include="Model\DataModel.cs" />
     <Compile Include="Service1.svc.cs">
       <DependentUpon>Service1.svc</DependentUpon>
     </Compile>
@@ -116,7 +119,9 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

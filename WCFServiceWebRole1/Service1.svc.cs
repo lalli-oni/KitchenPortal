@@ -5,8 +5,12 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Threading;
 using DataTableStorage;
 using DataTableStorage.Model;
+using WCFServiceWebRole1.DBAImplementations;
+using WCFServiceWebRole1.Model;
+using DataModel = WCFServiceWebRole1.Model.DataModel;
 
 namespace WCFServiceWebRole1
 {
@@ -32,12 +36,18 @@ namespace WCFServiceWebRole1
             return composite;
         }
 
-      
+        public void SaveData(DataModel data)
+        {                    
+                SQLImplementation a = new SQLImplementation();
+                a.InsertData(data);
+        }
 
 
-        public void SaveData(DataTableStorage.Model.SensorEntity sensor)
-        {
-           Program.insert(sensor);           
+        
+
+        public int SetReminder(int temperature)
+        {            
+            return temperature;
         }
     }
 }
