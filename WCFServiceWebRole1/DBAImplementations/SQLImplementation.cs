@@ -39,5 +39,34 @@ namespace WCFServiceWebRole1.DBAImplementations
             }
 
         }
+
+        public bool CheckOvenTemp(int temperature)
+        {
+            TimeSpan dateSpan = new TimeSpan(1,0,0,0);
+            DateTime date = DateTime.Now;
+            DateTime yesterday = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+            yesterday =  yesterday.Subtract(dateSpan);
+            string yesterdaystring = yesterday.ToString("yyyy-MM-dd HH:mm:ss");
+            DateTime tomorrow = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
+            tomorrow = tomorrow.AddDays(1);
+            string tomorrowstring =  tomorrow.ToString("yyyy-MM-dd HH:mm:ss");
+            string command = "SELECT TOP 1 temperature from SensorData WHERE sensorName = 'OVEN' AND  timeOfData >= '" + yesterdaystring + "' AND timeOfData < '" + tomorrowstring +  "' ORDER BY timeOfData";
+
+
+            using (SqlConnection connection =new SqlConnection(connectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(command,connection);
+
+                connection.Open();
+                int sqlResult = (int) sqlCommand.ExecuteScalar();
+
+                if (sqlResult >= temperature )
+                {
+                    return true;
+                }             
+               
+            }
+            return true;
+        }
     }
 }

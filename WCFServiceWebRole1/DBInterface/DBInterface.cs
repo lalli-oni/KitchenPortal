@@ -10,5 +10,7 @@ namespace WCFServiceWebRole1.DBInterface
     interface DBInterface
     {
         void InsertData(DataModel data);
+
+        bool CheckOvenTemp(int temperature);
     }
 }
