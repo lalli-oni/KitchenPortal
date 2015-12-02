@@ -105,6 +105,7 @@
     <Compile Include="DBAImplementations\SQLImplementation.cs" />
     <Compile Include="DBInterface\DBInterface.cs" />
     <Compile Include="Model\DataModel.cs" />
+    <Compile Include="Model\ReminderModel.cs" />
     <Compile Include="Service1.svc.cs">
       <DependentUpon>Service1.svc</DependentUpon>
     </Compile>
