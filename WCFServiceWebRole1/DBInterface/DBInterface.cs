@@ -11,6 +11,6 @@ namespace WCFServiceWebRole1.DBInterface
     {
         Task<bool> InsertData(DataModel data);
 
-        bool CheckOvenTemp(int temperature);
+        Task<bool> CheckTemperatureReminder(int temperature);
     }
 }
