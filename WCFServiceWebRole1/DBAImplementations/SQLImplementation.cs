@@ -55,7 +55,7 @@ namespace WCFServiceWebRole1.DBAImplementations
             tomorrow = tomorrow.AddDays(1);
             string tomorrowstring =  tomorrow.ToString("yyyy-MM-dd HH:mm:ss");
             //The SQL command sent to the database manager
-            string command = "SELECT TOP 1 temperature from SensorData WHERE sensorName = 'OVEN' AND  timeOfData >= '" + yesterdaystring + "' AND timeOfData < '" + tomorrowstring +  "' ORDER BY timeOfData";
+            string command = "SELECT TOP 1 temperature from SensorData WHERE sensorName = 'OVEN' AND  timeOfData >= '" + yesterdaystring + "' AND timeOfData < '" + tomorrowstring +  "' ORDER BY timeOfData DESC";
 
 
             using (SqlConnection connection = new SqlConnection(connectionString))

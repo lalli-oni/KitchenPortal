@@ -48,7 +48,8 @@ namespace WCFServiceWebRole1
         public bool SetReminder(int temperature)
         {
             SQLImplementation a = new SQLImplementation();
-            return  a.CheckOvenTemp(temperature);
+            var result = a.CheckOvenTemp(temperature);
+            return result;
         }
     }
 }
