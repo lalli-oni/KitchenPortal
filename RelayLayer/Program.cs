@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Edm;
 using RelayLayer.AzureWebService;
@@ -22,7 +23,7 @@ namespace RelayLayer
         /// <param name="args">Command line arguments</param>
         static void Main(string[] args)
         {
-            Console.WriteLine("Controls: 'F' for fake data, 'S' for teacher sensor and 'X' to quit");
+            Console.WriteLine("Controls: 'F' for fake data, 'S' for teacher sensor, 'I' to input data manually and 'X' to quit");
             string cmdInput = "";
             while (cmdInput.ToLower() != "x")
             {
@@ -33,12 +34,54 @@ namespace RelayLayer
                         _running = true;
                         Task.Run(() => StartFaking());
                         break;
+                    case "i":
+                        _running = true;
+                        InputFakeData();
+                        break;
                     case "s":
                         _running = true;
                         Task.Run(() => StartListening());
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Allows the user to input data manually. No error handling.
+        /// </summary>
+        private static void InputFakeData()
+        {
+            DataModel newSensorData = new DataModel();
+            Console.WriteLine("Input sensor name:");
+            newSensorData.SensorName = Console.ReadLine();
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Input sensor Temperature (0-300):");
+                    newSensorData.Temperature = Convert.ToInt32(Console.ReadLine());
+                    break;
+                }
+                catch (Exception)
+                {
+                    
+                }
+            }
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Input sensor Light (0-300):");
+                    newSensorData.Light = Convert.ToInt32(Console.ReadLine());
+                    break;
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+            newSensorData.TimeOfData = DateTime.Now;
+            Output.SendToWebService(newSensorData);
         }
 
         private static void StartListening()
