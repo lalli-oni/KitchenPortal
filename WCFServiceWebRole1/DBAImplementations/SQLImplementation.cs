@@ -21,13 +21,13 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string command = "INSERT INTO SensorData (sensorName, timeOfData, light, temperature) VALUES (@sensorName, @timeOfData, @light, @temperature)";
+                string command = "INSERT INTO SensorData (sensorName, timeOfData, light, desiredTemp) VALUES (@sensorName, @timeOfData, @light, @desiredTemp)";
                 SqlCommand sqlCommand = new SqlCommand(command, connection);
             
                 sqlCommand.Parameters.AddWithValue("@sensorName", data.SensorName);
                 sqlCommand.Parameters.AddWithValue("@timeOfData", data.TimeOfData);
                 sqlCommand.Parameters.AddWithValue("@light", data.Light);
-                sqlCommand.Parameters.AddWithValue("@temperature", data.Temperature);
+                sqlCommand.Parameters.AddWithValue("@desiredTemp", data.Temperature);
                 try
                 {
                     connection.Open();
@@ -42,7 +42,7 @@ namespace WCFServiceWebRole1.DBAImplementations
             return true;
         }
 
-        public bool CheckOvenTemp(int temperature)
+        public async Task<bool> CheckTemperatureReminder(int desiredTemp)
         {
             DateTime date = DateTime.Now;
             //Creates a timespan to find yesterday and tomorrow
@@ -63,25 +63,38 @@ namespace WCFServiceWebRole1.DBAImplementations
                 //TODO: Error handling (timeout, cooling?...)
 
                 connection.Open();
-                //While the connection is open it checks if the temperature is reached
+                //While the connection is open it checks if the desiredTemp is reached
                 //When it is reached it closes the connection and returns true
                 while (connection.State == ConnectionState.Open)
                 {
+                    //How long the thread is put to sleep at the end of the loop.
+                    int checkInterval = 100;
                     try
                     {
-                        int sqlResult = (int)sqlCommand.ExecuteScalar();
+                        object sqlResult =  await sqlCommand.ExecuteScalarAsync();
+                        int tempResult = -100;
+                        tempResult = Convert.ToInt32(sqlResult);
 
-                        if (sqlResult >= temperature)
+                        if ((desiredTemp - tempResult) > 50)
+                        {
+                            checkInterval = 2000;
+                        }
+                        else if ((desiredTemp - tempResult) > 30)
+                        {
+                            checkInterval = 500;
+                        }
+
+                        if (tempResult >= desiredTemp)
                         {
                             connection.Close();
                         }
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         connection.Close();
                         return false;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(checkInterval);
                 }
                 return true;
             }

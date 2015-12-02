@@ -27,7 +27,7 @@ namespace WCFServiceWebRole1
 
         [OperationContract]
 
-        bool SetReminder(int temperature);
+        bool SetReminderAsync(int temperature);
 
         // TODO: Add your service operations here
     }
