@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using WCFServiceWebRole1.Model;
 
@@ -22,7 +23,7 @@ namespace WCFServiceWebRole1
         CompositeType GetDataUsingDataContract(CompositeType composite);
 
         [OperationContract]
-        void SaveData(DataModel data);
+        bool SaveDataAsync(DataModel data);
 
         [OperationContract]
 
