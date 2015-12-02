@@ -56,7 +56,8 @@ namespace RelayLayer
         {
             Console.WriteLine("Data sent: " + secData.ToString());
             Service1Client client = new Service1Client();
-            //client.SaveData(ovenSensorToSend);
+            AzureWebService.DataModel data = new AzureWebService.DataModel() { SensorName = secData.SensorName, Light = secData.Light, Temperature = secData.Temperature, TimeOfData = secData.TimeOfData };
+            client.SaveData(data);
         }
     }
 }
