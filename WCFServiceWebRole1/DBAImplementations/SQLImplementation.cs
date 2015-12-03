@@ -14,9 +14,10 @@ namespace WCFServiceWebRole1.DBAImplementations
     {
 
 
-        private String connectionString =
+        private const string connectionString =
             //  "Server=tcp:kitchenportaldb.database.windows.net,1433;Database=KitchenPortalDb;User ID=tomas@kitchenportaldb;Password={Password18};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
             "Data Source=kitchenportaldb.database.windows.net;Initial Catalog=KitchenPortalDb;User ID=tomas;Password=Password18";
+        
         public async Task<bool> InsertData(DataModel data)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -44,22 +45,9 @@ namespace WCFServiceWebRole1.DBAImplementations
 
         public async Task<bool> CheckTemperatureReminder(int desiredTemp)
         {
-            DateTime date = DateTime.Now;
-            //Creates a timespan to find yesterday and tomorrow
-            TimeSpan dateSpan = new TimeSpan(1, 0, 0, 0);
-            DateTime yesterday = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-            yesterday =  yesterday.Subtract(dateSpan);
-            string yesterdaystring = yesterday.ToString("yyyy-MM-dd HH:mm:ss");
-            DateTime tomorrow = new DateTime(date.Year, date.Month, date.Day, 00, 00, 00);
-            tomorrow = tomorrow.AddDays(1);
-            string tomorrowstring =  tomorrow.ToString("yyyy-MM-dd HH:mm:ss");
-            //The SQL command sent to the database manager
-            string command = "SELECT TOP 1 temperature from SensorData WHERE sensorName = 'OVEN' AND  timeOfData >= '" + yesterdaystring + "' AND timeOfData < '" + tomorrowstring +  "' ORDER BY timeOfData DESC";
-
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(command,connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenTemperature(), connection);
                 //TODO: Error handling (timeout, cooling?...)
 
                 connection.Open();
@@ -71,7 +59,7 @@ namespace WCFServiceWebRole1.DBAImplementations
                     int checkInterval = 100;
                     try
                     {
-                        object sqlResult =  await sqlCommand.ExecuteScalarAsync();
+                        object sqlResult = await sqlCommand.ExecuteScalarAsync();
                         int tempResult = -100;
                         tempResult = Convert.ToInt32(sqlResult);
 
@@ -89,6 +77,11 @@ namespace WCFServiceWebRole1.DBAImplementations
                             connection.Close();
                         }
                     }
+                    catch (NullReferenceException nullE)
+                    {
+                        connection.Close();
+                        return false;
+                    }
                     catch (Exception e)
                     {
                         connection.Close();
@@ -97,6 +90,42 @@ namespace WCFServiceWebRole1.DBAImplementations
                     Thread.Sleep(checkInterval);
                 }
                 return true;
+            }
+        }
+
+        public DataModel RetrieveLastData()
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenDataModel(), connection);
+                //TODO: Error handling (timeout, cooling?...)
+                DataModel sqlOvenData = new DataModel();
+
+                connection.Open();
+                try
+                {
+                    using (SqlDataReader reader = sqlCommand.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                sqlOvenData.Light = reader.GetInt32(3);
+                                sqlOvenData.Temperature = reader.GetInt32(4);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("No records.");
+                        }
+                    }
+                    return sqlOvenData;
+                }
+                catch (Exception e)
+                {
+                    connection.Close();
+                    return null;
+                }
             }
         }
     }
