@@ -29,7 +29,10 @@ namespace WCFServiceWebRole1
         bool SetReminderAsync(int temperature);
 
         [OperationContract]
-        int[] GetLastSensorData();
+        int[] GetLastRoomData();
+
+        [OperationContract]
+        int GetLastOvenData();
 
         // TODO: Add your service operations here
     }

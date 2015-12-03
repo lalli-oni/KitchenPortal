@@ -22,10 +22,14 @@ namespace WCFServiceWebRole1
     {
         //Used to see if there are any reminders active so that multiple reminders are not created.
         private List<ReminderModel> activeReminders;
-        //Cache for the last data retrieved. [0] = Oven, [1] = Room(can be null), [2] = Fake/testing(can be null)
-        private DataModel[] dataCache;
+        //Cache for the last data retrieved.
+        private DataModel roomDataCache;
         //Time of cache creation
-        private DateTime timeOfCacheCreation;
+        private DateTime timeOfRoomCacheCreation;
+        //Cache for the last data retrieved.
+        private DataModel ovenDataCache;
+        //Time of cache creation
+        private DateTime timeOfOvenCacheCreation;
 
         public string GetData(int value)
         {
@@ -72,30 +76,56 @@ namespace WCFServiceWebRole1
         }
 
         /// <summary>
-        /// Returns the last sensor data in the following order:
-        /// OvenTemp, OvenLight.
+        /// Gets the latest Room temperature and light values
         /// </summary>
-        /// <returns></returns>
-        public int[] GetLastSensorData()
+        /// <returns>[0] = Temperature, [1] = Light</returns>
+        public int[] GetLastRoomData()
         {
             //5 Seconds
             TimeSpan cacheDuration = new TimeSpan(0,0,5);
-            DataModel ovenData = null;
+            DataModel roomData = null;
             SQLImplementation sqlClient = new SQLImplementation();
-            if (dataCache == null)
+            if (roomDataCache == null)
             {
-                dataCache = new DataModel[3];
+                roomDataCache = new DataModel();
             }
 
-            if (!dataCache.Any() || DateTime.Now > timeOfCacheCreation.Add(cacheDuration))
+            if (roomDataCache.Temperature == null || DateTime.Now > timeOfRoomCacheCreation.Add(cacheDuration))
             {
-                ovenData = sqlClient.RetrieveLastData();
-                dataCache[0] = ovenData;
-                timeOfCacheCreation = DateTime.Now;
-                int[] ovenDataNumbers = { ovenData.Temperature, ovenData.Light };
+                roomData = sqlClient.RetrieveLastRoomData();
+                roomDataCache = roomData;
+                timeOfRoomCacheCreation = DateTime.Now;
+                int[] roomDataNumbers = { roomData.Temperature, roomData.Light };
+                return roomDataNumbers;
+            }
+            int[] cachedRoomDataNumbers = { roomDataCache.Temperature, roomDataCache.Light };
+            return cachedRoomDataNumbers;
+        }
+
+        /// <summary>
+        /// Gets the latest Oven temperature value
+        /// </summary>
+        /// <returns>Latest Oven temperature</returns>
+        public int GetLastOvenData()
+        {
+            //5 Seconds
+            TimeSpan cacheDuration = new TimeSpan(0, 0, 5);
+            DataModel ovenData = null;
+            SQLImplementation sqlClient = new SQLImplementation();
+            if (ovenDataCache == null)
+            {
+                ovenDataCache = new DataModel();
+            }
+
+            if (ovenDataCache.Temperature == null || DateTime.Now > timeOfOvenCacheCreation.Add(cacheDuration))
+            {
+                ovenData = sqlClient.RetrieveLastOvenData();
+                ovenDataCache = ovenData;
+                timeOfOvenCacheCreation = DateTime.Now;
+                int ovenDataNumbers = ovenData.Temperature;
                 return ovenDataNumbers;
             }
-            int[] cachedOvenDataNumbers = { dataCache[0].Temperature, dataCache[0].Light };
+            int cachedOvenDataNumbers = ovenDataCache.Temperature;
             return cachedOvenDataNumbers;
         }
     }
