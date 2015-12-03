@@ -17,14 +17,15 @@ namespace WCFServiceWebRole1.DBAImplementations
         private const string connectionString =
             //  "Server=tcp:kitchenportaldb.database.windows.net,1433;Database=KitchenPortalDb;User ID=tomas@kitchenportaldb;Password={Password18};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
             "Data Source=kitchenportaldb.database.windows.net;Initial Catalog=KitchenPortalDb;User ID=tomas;Password=Password18";
-        
+
         public async Task<bool> InsertData(DataModel data)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                string command = "INSERT INTO SensorData (sensorName, timeOfData, light, desiredTemp) VALUES (@sensorName, @timeOfData, @light, @desiredTemp)";
+                string command =
+                    "INSERT INTO SensorData (sensorName, timeOfData, light, desiredTemp) VALUES (@sensorName, @timeOfData, @light, @desiredTemp)";
                 SqlCommand sqlCommand = new SqlCommand(command, connection);
-            
+
                 sqlCommand.Parameters.AddWithValue("@sensorName", data.SensorName);
                 sqlCommand.Parameters.AddWithValue("@timeOfData", data.TimeOfData);
                 sqlCommand.Parameters.AddWithValue("@light", data.Light);
@@ -47,7 +48,7 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenTemperature(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
                 //TODO: Error handling (timeout, cooling?...)
 
                 connection.Open();
@@ -93,11 +94,11 @@ namespace WCFServiceWebRole1.DBAImplementations
             }
         }
 
-        public DataModel RetrieveLastData()
+        public DataModel RetrieveLastOvenData()
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenDataModel(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
                 //TODO: Error handling (timeout, cooling?...)
                 DataModel sqlOvenData = new DataModel();
 
@@ -120,6 +121,42 @@ namespace WCFServiceWebRole1.DBAImplementations
                         }
                     }
                     return sqlOvenData;
+                }
+                catch (Exception e)
+                {
+                    connection.Close();
+                    return null;
+                }
+            }
+        }
+
+        public DataModel RetrieveLastRoomData()
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastRoomData(), connection);
+                //TODO: Error handling (timeout, cooling?...)
+                DataModel sqlRoomData = new DataModel();
+
+                connection.Open();
+                try
+                {
+                    using (SqlDataReader reader = sqlCommand.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                sqlRoomData.Light = reader.GetInt32(3);
+                                sqlRoomData.Temperature = reader.GetInt32(4);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("No records.");
+                        }
+                    }
+                    return sqlRoomData;
                 }
                 catch (Exception e)
                 {
