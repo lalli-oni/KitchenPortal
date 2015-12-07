@@ -31,6 +31,11 @@ namespace WCFServiceWebRole1
         //Time of cache creation
         private DateTime timeOfOvenCacheCreation;
 
+
+        public Service1()
+        {
+            activeReminders = new List<ReminderModel>();
+        }
         public string GetData(int value)
         {
             return string.Format("You entered: {0}", value);
@@ -85,9 +90,19 @@ namespace WCFServiceWebRole1
         /// Cancels the set reminder (written with the assumption of only 1 reminder
         /// </summary>
         /// <returns>A boolean if the cancellation succeeded or not</returns>
-        public Task<bool> CancelReminderAsync()
+        public async Task<bool> CancelReminderAsync()
         {
-            throw new NotImplementedException();
+            if (activeReminders.Any())
+            {
+                try
+                {
+                    return await SQLImplementation.GetInstance.CancelReminder();
+                }
+                catch (Exception)
+                {
+                }
+            }
+            return false;
         }
 
         /// <summary>

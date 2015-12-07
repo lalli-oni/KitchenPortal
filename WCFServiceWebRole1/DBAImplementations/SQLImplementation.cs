@@ -12,8 +12,12 @@ namespace WCFServiceWebRole1.DBAImplementations
 {
     public class SQLImplementation : DBInterface.DBInterface
     {
+        private bool _isReminderOn;
         public static SQLImplementation _instance;
 
+        /// <summary>
+        /// Get accessor to this class.
+        /// </summary>
         public static SQLImplementation GetInstance
         {
             get
@@ -24,6 +28,14 @@ namespace WCFServiceWebRole1.DBAImplementations
                 }
                 return _instance;
             }
+        }
+
+        /// <summary>
+        /// Private constructor, so that the only way to access this class is through GetInstance access field
+        /// </summary>
+        private SQLImplementation()
+        {
+            _isReminderOn = false;
         }
 
         private const string connectionString =
@@ -54,56 +66,6 @@ namespace WCFServiceWebRole1.DBAImplementations
                 connection.Close();
             }
             return true;
-        }
-
-        public async Task<bool> CheckTemperatureReminder(int desiredTemp)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
-                //TODO: Error handling (timeout, cooling?...)
-
-                connection.Open();
-                //While the connection is open it checks if the desiredTemp is reached
-                //When it is reached it closes the connection and returns true
-                while (connection.State == ConnectionState.Open)
-                {
-                    //How long the thread is put to sleep at the end of the loop.
-                    int checkInterval = 100;
-                    try
-                    {
-                        object sqlResult = await sqlCommand.ExecuteScalarAsync();
-                        int tempResult = -100;
-                        tempResult = Convert.ToInt32(sqlResult);
-
-                        if ((desiredTemp - tempResult) > 50)
-                        {
-                            checkInterval = 2000;
-                        }
-                        else if ((desiredTemp - tempResult) > 30)
-                        {
-                            checkInterval = 500;
-                        }
-
-                        if (tempResult >= desiredTemp)
-                        {
-                            connection.Close();
-                        }
-                    }
-                    catch (NullReferenceException nullE)
-                    {
-                        connection.Close();
-                        return false;
-                    }
-                    catch (Exception e)
-                    {
-                        connection.Close();
-                        return false;
-                    }
-                    Thread.Sleep(checkInterval);
-                }
-                return true;
-            }
         }
 
         public DataModel RetrieveLastOvenData()
@@ -176,6 +138,75 @@ namespace WCFServiceWebRole1.DBAImplementations
                     return null;
                 }
             }
+        }
+
+        public async Task<bool> CheckTemperatureReminder(int desiredTemp)
+        {
+            _isReminderOn = true;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
+                //TODO: Error handling (timeout, cooling?...)
+
+                connection.Open();
+                //While the connection is open it checks if the desiredTemp is reached
+                //When it is reached it closes the connection and returns true
+                while (connection.State == ConnectionState.Open && _isReminderOn)
+                {
+                    //How long the thread is put to sleep at the end of the loop.
+                    int checkInterval = 100;
+                    try
+                    {
+                        object sqlResult = await sqlCommand.ExecuteScalarAsync();
+                        int tempResult = -100;
+                        tempResult = Convert.ToInt32(sqlResult);
+
+                        if ((desiredTemp - tempResult) > 50)
+                        {
+                            checkInterval = 2000;
+                        }
+                        else if ((desiredTemp - tempResult) > 30)
+                        {
+                            checkInterval = 500;
+                        }
+
+                        if (tempResult >= desiredTemp)
+                        {
+                            connection.Close();
+                            return true;
+                        }
+                    }
+                    catch (NullReferenceException nullE)
+                    {
+                        connection.Close();
+                        return false;
+                    }
+                    catch (Exception e)
+                    {
+                        connection.Close();
+                        return false;
+                    }
+                    Thread.Sleep(checkInterval);
+                }
+                return false;
+            }
+        }
+
+        public async Task<bool> CancelReminder()
+        {
+            try
+            {
+                if (_isReminderOn)
+                {
+                    _isReminderOn = false;
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return false;
         }
     }
 }
