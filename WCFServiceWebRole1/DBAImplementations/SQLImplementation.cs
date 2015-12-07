@@ -12,7 +12,19 @@ namespace WCFServiceWebRole1.DBAImplementations
 {
     public class SQLImplementation : DBInterface.DBInterface
     {
+        public static SQLImplementation _instance;
 
+        public static SQLImplementation GetInstance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new SQLImplementation();
+                }
+                return _instance;
+            }
+        }
 
         private const string connectionString =
             //  "Server=tcp:kitchenportaldb.database.windows.net,1433;Database=KitchenPortalDb;User ID=tomas@kitchenportaldb;Password={Password18};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";

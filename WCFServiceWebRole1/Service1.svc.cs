@@ -50,11 +50,18 @@ namespace WCFServiceWebRole1
         }
 
         public bool SaveDataAsync(DataModel data)
-        {                    
-            SQLImplementation sqlClient = new SQLImplementation();
-            return sqlClient.InsertData(data).Result;
+        {
+            return SQLImplementation.GetInstance.InsertData(data).Result;
         }
         
+        /// <summary>
+        /// Starts a reminder that keeps on checking the last sensor data
+        /// in the database to see if the desired temperature has been reached
+        /// returns true when the temperature is reached
+        /// NOTES: No time-out, is written on the assumption that there is only one reminder
+        /// </summary>
+        /// <param name="temperature">The temperature that the user wants to be notified about if reached</param>
+        /// <returns>True if the temperature is reached, false if something went wrong or the reminder is cancelled</returns>
         public async Task<bool> SetReminderAsync(int temperature)
         {
             if (activeReminders == null)
@@ -70,9 +77,17 @@ namespace WCFServiceWebRole1
                 return false;
             }
             activeReminders.Add(new ReminderModel() { DesiredTemperature = temperature, TimeOfStart = DateTime.Now});
-            SQLImplementation sqlClient = new SQLImplementation();
-            var result = sqlClient.CheckTemperatureReminder(temperature).Result;
+            var result = SQLImplementation.GetInstance.CheckTemperatureReminder(temperature).Result;
             return result;
+        }
+
+        /// <summary>
+        /// Cancels the set reminder (written with the assumption of only 1 reminder
+        /// </summary>
+        /// <returns>A boolean if the cancellation succeeded or not</returns>
+        public Task<bool> CancelReminderAsync()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -84,7 +99,6 @@ namespace WCFServiceWebRole1
             //5 Seconds
             TimeSpan cacheDuration = new TimeSpan(0,0,5);
             DataModel roomData = null;
-            SQLImplementation sqlClient = new SQLImplementation();
             if (roomDataCache == null)
             {
                 roomDataCache = new DataModel();
@@ -92,7 +106,7 @@ namespace WCFServiceWebRole1
 
             if (roomDataCache.Temperature == null || DateTime.Now > timeOfRoomCacheCreation.Add(cacheDuration))
             {
-                roomData = sqlClient.RetrieveLastRoomData();
+                roomData = SQLImplementation.GetInstance.RetrieveLastRoomData();
                 roomDataCache = roomData;
                 timeOfRoomCacheCreation = DateTime.Now;
                 int[] roomDataNumbers = { roomData.Temperature, roomData.Light };
@@ -111,7 +125,6 @@ namespace WCFServiceWebRole1
             //5 Seconds
             TimeSpan cacheDuration = new TimeSpan(0, 0, 5);
             DataModel ovenData = null;
-            SQLImplementation sqlClient = new SQLImplementation();
             if (ovenDataCache == null)
             {
                 ovenDataCache = new DataModel();
@@ -119,7 +132,7 @@ namespace WCFServiceWebRole1
 
             if (ovenDataCache.Temperature == null || DateTime.Now > timeOfOvenCacheCreation.Add(cacheDuration))
             {
-                ovenData = sqlClient.RetrieveLastOvenData();
+                ovenData = SQLImplementation.GetInstance.RetrieveLastOvenData();
                 ovenDataCache = ovenData;
                 timeOfOvenCacheCreation = DateTime.Now;
                 int ovenDataNumbers = ovenData.Temperature;
@@ -128,5 +141,6 @@ namespace WCFServiceWebRole1
             int cachedOvenDataNumbers = ovenDataCache.Temperature;
             return cachedOvenDataNumbers;
         }
+
     }
 }

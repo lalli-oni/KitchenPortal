@@ -27,6 +27,8 @@ namespace WCFServiceWebRole1
 
         [OperationContract]
         Task<bool> SetReminderAsync(int temperature);
+        [OperationContract]
+        Task<bool> CancelReminderAsync();
 
         [OperationContract]
         int[] GetLastRoomData();
