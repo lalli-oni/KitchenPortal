@@ -55,7 +55,7 @@ namespace WCFServiceWebRole1
             return sqlClient.InsertData(data).Result;
         }
         
-        public bool SetReminderAsync(int temperature)
+        public async Task<bool> SetReminderAsync(int temperature)
         {
             if (activeReminders == null)
             {

@@ -26,7 +26,7 @@ namespace WCFServiceWebRole1
         bool SaveDataAsync(DataModel data);
 
         [OperationContract]
-        bool SetReminderAsync(int temperature);
+        Task<bool> SetReminderAsync(int temperature);
 
         [OperationContract]
         int[] GetLastRoomData();
