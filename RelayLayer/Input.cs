@@ -203,15 +203,17 @@ namespace RelayLayer
         public void StartFakeOvenSensor()
         {
             _isOvenOn = true;
-            const int avgTemp = 215;
+            const int avgTemp = 22;
             int light  = 1;
             bool lightsOn = true;
-            int currentTemp = avgTemp;
             OvenSensorTemp = avgTemp;
+            int maximumHeat = 500;
+            int interval = 9000;
             while (_isOvenOn)
             {
                 OvenSensorTemp = OvenSensorTemp + 1;
-                Thread.Sleep(7000);
+                interval = OvenSensorTemp*(500/OvenSensorTemp);
+                Thread.Sleep(interval);
             }
         }
         #endregion
