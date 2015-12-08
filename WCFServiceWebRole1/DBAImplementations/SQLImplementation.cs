@@ -12,9 +12,9 @@ namespace WCFServiceWebRole1.DBAImplementations
 {
     public class SQLImplementation : DBInterface.DBInterface
     {
-        private bool _isReminderOn;
+        #region Singleton Implementation
         public static SQLImplementation _instance;
-
+        
         /// <summary>
         /// Get accessor to this class.
         /// </summary>
@@ -35,14 +35,16 @@ namespace WCFServiceWebRole1.DBAImplementations
         /// </summary>
         private SQLImplementation()
         {
-            _isReminderOn = false;
+            remindersClient = new Remindershandler();
         }
+        #endregion
 
+        private Remindershandler remindersClient;
         private const string connectionString =
             //  "Server=tcp:kitchenportaldb.database.windows.net,1433;Database=KitchenPortalDb;User ID=tomas@kitchenportaldb;Password={Password18};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
             "Data Source=kitchenportaldb.database.windows.net;Initial Catalog=KitchenPortalDb;User ID=tomas;Password=Password18";
 
-        public async Task<bool> InsertData(DataModel data)
+        public async Task<bool> InsertSensorData(DataModel data)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -72,7 +74,7 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastOvenData(), connection);
                 //TODO: Error handling (timeout, cooling?...)
                 DataModel sqlOvenData = new DataModel();
 
@@ -108,7 +110,7 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastRoomData(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastRoomData(), connection);
                 //TODO: Error handling (timeout, cooling?...)
                 DataModel sqlRoomData = new DataModel();
 
@@ -140,28 +142,28 @@ namespace WCFServiceWebRole1.DBAImplementations
             }
         }
 
-        public async Task<bool> CheckTemperatureReminder(int desiredTemp)
+        public bool CheckTemperatureReminder(int desiredTemp)
         {
-            _isReminderOn = true;
+            int i = 0;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenTemperatureToday(), connection);
-                //TODO: Error handling (timeout, cooling?...)
-
                 connection.Open();
                 //While the connection is open it checks if the desiredTemp is reached
                 //When it is reached it closes the connection and returns true
-                while (connection.State == ConnectionState.Open && _isReminderOn)
+                //Runs once to create the Reminder in the database
+                do
                 {
+                    if (i == 0)
+                    {
+                        ReminderModel newReminder = new ReminderModel() { DesiredTemperature = desiredTemp, TimeOfStart = DateTime.Now};
+                        remindersClient.CreateReminder(connection, newReminder);
+                    }
                     //How long the thread is put to sleep at the end of the loop.
                     int checkInterval = 100;
                     try
                     {
-                        object sqlResult = await sqlCommand.ExecuteScalarAsync();
-                        if (sqlResult == null)
-                        {
-                            throw new Exception("No response from database.");
-                        }
+                        SqlCommand checkTemperature = new SqlCommand(SqlCommandBuilder.GetLastOvenTemperatureToday(), connection);
+                        object sqlResult = checkTemperature.ExecuteScalar();
                         int tempResult = -100;
                         tempResult = Convert.ToInt32(sqlResult);
 
@@ -191,24 +193,22 @@ namespace WCFServiceWebRole1.DBAImplementations
                         return false;
                     }
                     Thread.Sleep(checkInterval);
-                }
+                    i++;
+                } while (connection.State == ConnectionState.Open && remindersClient.CheckActiveReminder(connection));
+                
+                //TODO: Error handling (timeout, cooling?...)
                 return false;
             }
         }
+        
 
         public async Task<bool> CancelReminder()
         {
             try
             {
-                if (_isReminderOn)
-                {
-                    _isReminderOn = false;
-                    return true;
-                }
             }
             catch (Exception)
             {
-                throw;
             }
             return false;
         }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Data.SqlClient;
 
 namespace WCFServiceWebRole1.DBAImplementations
 {
     public static class SqlCommandBuilder
     {
-        public static string CreateSQLCommandGetLastOvenData()
+        public static string GetLastOvenData()
         {
             DateTime date = DateTime.Now;
             //Creates a timespan to find yesterday and tomorrow
@@ -19,7 +20,7 @@ namespace WCFServiceWebRole1.DBAImplementations
             return "SELECT * from SensorData WHERE sensorName = 'OVEN' ORDER BY timeOfData ASC";
         }
 
-        public static string CreateSQLCommandGetLastOvenTemperatureToday()
+        public static string GetLastOvenTemperatureToday()
         {
             DateTime date = DateTime.Now;
             //Creates a timespan to find yesterday and tomorrow
@@ -34,7 +35,7 @@ namespace WCFServiceWebRole1.DBAImplementations
             return "SELECT TOP 1 temperature from SensorData WHERE sensorName = 'OVEN' AND  timeOfData >= '" + yesterdaystring + "' AND timeOfData < '" + tomorrowstring + "' ORDER BY timeOfData DESC";
         }
 
-        public static string CreateSQLCommandGetLastRoomData()
+        public static string GetLastRoomData()
         {
             DateTime date = DateTime.Now;
             //Creates a timespan to find yesterday and tomorrow
@@ -48,5 +49,6 @@ namespace WCFServiceWebRole1.DBAImplementations
             //The SQL command sent to the database manager
             return "SELECT * from SensorData WHERE sensorName = 'ROOM' ORDER BY timeOfData ASC";
         }
+        
     }
 }
