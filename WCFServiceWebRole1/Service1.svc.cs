@@ -48,17 +48,7 @@ namespace WCFServiceWebRole1
         /// <returns>A boolean if the cancellation succeeded or not</returns>
         public async Task<bool> CancelReminderAsync()
         {
-            if (activeReminders.Any())
-            {
-                try
-                {
-                    return await SQLImplementation.GetInstance.CancelReminder();
-                }
-                catch (Exception e)
-                {
-                }
-            }
-            return false;
+            return SQLImplementation.GetInstance.CancelReminder();
         }
 
         /// <summary>
@@ -75,7 +65,7 @@ namespace WCFServiceWebRole1
                 roomDataCache = new DataModel();
             }
 
-            if (roomDataCache.Temperature == null || DateTime.Now > timeOfRoomCacheCreation.Add(cacheDuration))
+            if (DateTime.Now > timeOfRoomCacheCreation.Add(cacheDuration))
             {
                 roomData = SQLImplementation.GetInstance.RetrieveLastRoomData();
                 roomDataCache = roomData;
@@ -101,7 +91,7 @@ namespace WCFServiceWebRole1
                 ovenDataCache = new DataModel();
             }
 
-            if (ovenDataCache.Temperature == null || DateTime.Now > timeOfOvenCacheCreation.Add(cacheDuration))
+            if (DateTime.Now > timeOfOvenCacheCreation.Add(cacheDuration))
             {
                 ovenData = SQLImplementation.GetInstance.RetrieveLastOvenData();
                 ovenDataCache = ovenData;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.ServiceModel.Dispatcher;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -179,17 +180,20 @@ namespace WCFServiceWebRole1.DBAImplementations
                         if (tempResult >= desiredTemp)
                         {
                             connection.Close();
+                            remindersClient.CancelReminder(connectionString);
                             return true;
                         }
                     }
                     catch (NullReferenceException nullE)
                     {
                         connection.Close();
+                        remindersClient.CancelReminder(connectionString);
                         return false;
                     }
                     catch (Exception e)
                     {
                         connection.Close();
+                        remindersClient.CancelReminder(connectionString);
                         return false;
                     }
                     Thread.Sleep(checkInterval);
@@ -202,10 +206,11 @@ namespace WCFServiceWebRole1.DBAImplementations
         }
         
 
-        public async Task<bool> CancelReminder()
+        public bool CancelReminder()
         {
             try
             {
+                return remindersClient.CancelReminder(connectionString);
             }
             catch (Exception)
             {
