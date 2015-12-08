@@ -36,54 +36,10 @@ namespace WCFServiceWebRole1
         {
             activeReminders = new List<ReminderModel>();
         }
-        public string GetData(int value)
-        {
-            return string.Format("You entered: {0}", value);
-        }
-
-        public CompositeType GetDataUsingDataContract(CompositeType composite)
-        {
-            if (composite == null)
-            {
-                throw new ArgumentNullException("composite");
-            }
-            if (composite.BoolValue)
-            {
-                composite.StringValue += "Suffix";
-            }
-            return composite;
-        }
 
         public bool SaveDataAsync(DataModel data)
         {
             return SQLImplementation.GetInstance.InsertData(data).Result;
-        }
-        
-        /// <summary>
-        /// Starts a reminder that keeps on checking the last sensor data
-        /// in the database to see if the desired temperature has been reached
-        /// returns true when the temperature is reached
-        /// NOTES: No time-out, is written on the assumption that there is only one reminder
-        /// </summary>
-        /// <param name="temperature">The temperature that the user wants to be notified about if reached</param>
-        /// <returns>True if the temperature is reached, false if something went wrong or the reminder is cancelled</returns>
-        public async Task<bool> SetReminderAsync(int temperature)
-        {
-            if (activeReminders == null)
-            {
-                activeReminders = new List<ReminderModel>();
-            }
-            if (activeReminders.Any())
-            {
-                //If there are any active reminders it will return false.
-                //This means that the web browser will throw an exception that the reminder failed
-                //Even though the reminder might be running in another thread and will just discard it's return value
-                activeReminders.Clear();
-                return false;
-            }
-            activeReminders.Add(new ReminderModel() { DesiredTemperature = temperature, TimeOfStart = DateTime.Now});
-            var result = SQLImplementation.GetInstance.CheckTemperatureReminder(temperature).Result;
-            return result;
         }
 
         /// <summary>
@@ -157,6 +113,16 @@ namespace WCFServiceWebRole1
             return cachedOvenDataNumbers;
         }
 
+
+        /// <summary>
+        /// Starts a reminder that keeps on checking the last sensor data
+        /// in the database to see if the desired temperature has been reached
+        /// returns true when the temperature is reached
+        /// NOTES: No time-out, is written on the assumption that there is only one reminder
+        /// NOTES: Async implementation, is called by a method that uses these results in EndReminderAsync(result)
+        /// </summary>
+        /// <param name="temperature">The temperature that the user wants to be notified about if reached</param>
+        /// <returns>True if the temperature is reached, false if something went wrong or the reminder is cancelled</returns>
         public IAsyncResult BeginReminderAsync(int desiredTemperature, AsyncCallback callback, object asyncState)
         {
             if (activeReminders == null)

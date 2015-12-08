@@ -16,18 +16,8 @@ namespace WCFServiceWebRole1
     [ServiceContract]
     public interface IService1
     {
-
-        [OperationContract]
-        string GetData(int value);
-
-        [OperationContract]
-        CompositeType GetDataUsingDataContract(CompositeType composite);
-
         [OperationContract]
         bool SaveDataAsync(DataModel data);
-
-        [OperationContract]
-        Task<bool> SetReminderAsync(int temperature);
 
         [OperationContract]
         Task<bool> CancelReminderAsync();
