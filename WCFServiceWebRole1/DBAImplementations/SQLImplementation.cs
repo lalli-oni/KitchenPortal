@@ -145,7 +145,7 @@ namespace WCFServiceWebRole1.DBAImplementations
             _isReminderOn = true;
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenData(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.CreateSQLCommandGetLastOvenTemperatureToday(), connection);
                 //TODO: Error handling (timeout, cooling?...)
 
                 connection.Open();
@@ -158,6 +158,10 @@ namespace WCFServiceWebRole1.DBAImplementations
                     try
                     {
                         object sqlResult = await sqlCommand.ExecuteScalarAsync();
+                        if (sqlResult == null)
+                        {
+                            throw new Exception("No response from database.");
+                        }
                         int tempResult = -100;
                         tempResult = Convert.ToInt32(sqlResult);
 

@@ -157,5 +157,55 @@ namespace WCFServiceWebRole1
             return cachedOvenDataNumbers;
         }
 
+        public IAsyncResult BeginReminderAsync(int desiredTemperature, AsyncCallback callback, object asyncState)
+        {
+            if (activeReminders == null)
+            {
+                activeReminders = new List<ReminderModel>();
+            }
+            if (activeReminders.Any())
+            {
+                //If there are any active reminders it will return false.
+                //This means that the web browser will throw an exception that the reminder failed
+                //Even though the reminder might be running in another thread and will just discard it's return value
+                activeReminders.Clear();
+                return new CompletedAsyncResult<bool>(false);
+            }
+            activeReminders.Add(new ReminderModel() { DesiredTemperature = desiredTemperature, TimeOfStart = DateTime.Now });
+            CompletedAsyncResult<bool> result = new CompletedAsyncResult<bool>(SQLImplementation.GetInstance.CheckTemperatureReminder(desiredTemperature).Result);
+            return result;
+        }
+
+        public bool EndReminderAsync(IAsyncResult r)
+        {
+            CompletedAsyncResult<bool> result = r as CompletedAsyncResult<bool>;
+            return result.Data;
+        }
+
+        // Simple async result implementation.
+        class CompletedAsyncResult<T> : IAsyncResult
+        {
+            T data;
+
+            public CompletedAsyncResult(T data)
+            { this.data = data; }
+
+            public T Data
+            { get { return data; } }
+
+            #region IAsyncResult Members
+            public object AsyncState
+            { get { return (object)data; } }
+
+            public WaitHandle AsyncWaitHandle
+            { get { throw new Exception("The method or operation is not implemented."); } }
+
+            public bool CompletedSynchronously
+            { get { return true; } }
+
+            public bool IsCompleted
+            { get { return true; } }
+            #endregion
+        }
     }
 }

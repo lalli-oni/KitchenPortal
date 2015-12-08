@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.WindowsAzure.Storage.Table;
 using WCFServiceWebRole1.Model;
 
@@ -27,6 +28,7 @@ namespace WCFServiceWebRole1
 
         [OperationContract]
         Task<bool> SetReminderAsync(int temperature);
+
         [OperationContract]
         Task<bool> CancelReminderAsync();
 
@@ -35,8 +37,10 @@ namespace WCFServiceWebRole1
 
         [OperationContract]
         int GetLastOvenData();
-
-        // TODO: Add your service operations here
+        
+        [OperationContractAttribute(AsyncPattern = true)]
+        IAsyncResult BeginReminderAsync(int desiredTemperature, AsyncCallback callback, object asyncState);
+        bool EndReminderAsync(IAsyncResult result);
     }
 
 
