@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RelayLayer
@@ -25,18 +26,32 @@ namespace RelayLayer
 
         //SensorValues
         private int _ovenSensorTemp;
-        private Object roomTempLock = new Object();
+        private object ovenTempLock = new object();
         private int _roomSensorTemp;
+        private object roomTempLock = new object();
         private int _roomSensorLight;
 
         public int RoomSensorTemp
         {
-            get { lock (roomTempLock)
-            {
-                return _roomSensorTemp;
-            }
-            }
+            get {
+                lock (roomTempLock)
+                    {
+                        return _roomSensorTemp;
+                    }
+                }
             set { _roomSensorTemp = value; }
+        }
+
+        public int OvenSensorTemp
+        {
+            get
+            {
+                lock (ovenTempLock)
+                {
+                    return _ovenSensorTemp;
+                }
+            }
+            set { _ovenSensorTemp = value; }
         }
 
         /// <summary>
@@ -179,6 +194,24 @@ namespace RelayLayer
                 }
                 RoomSensorTemp = currentTemp;
                 _roomSensorLight = currentLight;
+            }
+        }
+
+        /// <summary>
+        /// Starts heating up the fake oven
+        /// </summary>
+        public void StartFakeOvenSensor()
+        {
+            _isOvenOn = true;
+            const int avgTemp = 215;
+            int light  = 1;
+            bool lightsOn = true;
+            int currentTemp = avgTemp;
+            OvenSensorTemp = avgTemp;
+            while (_isOvenOn)
+            {
+                OvenSensorTemp = OvenSensorTemp + 1;
+                Thread.Sleep(7000);
             }
         }
         #endregion

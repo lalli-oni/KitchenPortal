@@ -89,6 +89,7 @@ namespace RelayLayer
             Input inp = new Input();
             Task.Run(() =>
             {
+                Task.Run(() => inp.StartFakeOvenSensor());
                 while (_running = true)
                 {
                     DataModel[] datas = new DataModel[2];
@@ -96,10 +97,12 @@ namespace RelayLayer
                     datas[0] = new DataModel()
                     {
                         Light = 0,
-                        Temperature = 0,
-                        SensorName = "Oven",
+                        Temperature = inp.OvenSensorTemp,
+                        SensorName = "OVEN",
                         TimeOfData = DateTime.Now
                     };
+                    Console.WriteLine(datas[0]);
+                    Console.WriteLine(datas[1]);
                     Output.SendToWebService(datas);
                 }
             });
