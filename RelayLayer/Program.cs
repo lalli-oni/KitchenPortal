@@ -90,7 +90,7 @@ namespace RelayLayer
             Task.Run(() =>
             {
                 Task.Run(() => inp.StartFakeOvenSensor());
-                while (_running = true)
+                while (_running)
                 {
                     DataModel[] datas = new DataModel[2];
                     datas[1] = inp.StartRoomListener();
