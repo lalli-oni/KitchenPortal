@@ -39,7 +39,7 @@ namespace WCFServiceWebRole1
 
         public bool SaveDataAsync(DataModel data)
         {
-            return SQLImplementation.GetInstance.InsertData(data).Result;
+            return SQLImplementation.GetInstance.InsertSensorData(data).Result;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace WCFServiceWebRole1
                 {
                     return await SQLImplementation.GetInstance.CancelReminder();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                 }
             }
@@ -138,7 +138,7 @@ namespace WCFServiceWebRole1
                 return new CompletedAsyncResult<bool>(false);
             }
             activeReminders.Add(new ReminderModel() { DesiredTemperature = desiredTemperature, TimeOfStart = DateTime.Now });
-            CompletedAsyncResult<bool> result = new CompletedAsyncResult<bool>(SQLImplementation.GetInstance.CheckTemperatureReminder(desiredTemperature).Result);
+            CompletedAsyncResult<bool> result = new CompletedAsyncResult<bool>(SQLImplementation.GetInstance.CheckTemperatureReminder(desiredTemperature));
             return result;
         }
 
