@@ -9,19 +9,6 @@ namespace WCFServiceWebRole1.DBAImplementations
 {
     public class Remindershandler
     {
-        private List<ReminderModel> _activeReminders;
-
-        public List<ReminderModel> ActiveReminders
-        {
-            get { return _activeReminders; }
-            set { _activeReminders = value; }
-        }
-
-        public Remindershandler()
-        {
-            ActiveReminders = new List<ReminderModel>();
-        }
-
         public bool CheckActiveReminder(SqlConnection activeConnection)
         {
             SqlCommand sqlCommand = new SqlCommand("SELECT * from Reminders WHERE IsActive != 0", activeConnection);
@@ -53,6 +40,29 @@ namespace WCFServiceWebRole1.DBAImplementations
             catch (Exception ex)
             {
                 throw new Exception("Unable to create new Reminder in Reminder table");
+            }
+        }
+
+        public bool CancelReminder(string conString)
+        {
+            using (SqlConnection connection = new SqlConnection(conString))
+            {
+                try
+                {
+                    connection.Open();
+                    int deactivedReminders = 1;
+                    do
+                    {
+                        SqlCommand command = new SqlCommand("UPDATE Reminders SET IsActive = 0 WHERE IsActive = 1", connection);
+                        deactivedReminders = command.ExecuteNonQuery();
+                    } while (deactivedReminders < 0);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    connection.Close();
+                    return false;
+                }
             }
         }
     }
