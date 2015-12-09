@@ -56,15 +56,15 @@ namespace RelayLayer
             newSensorData.SensorName = Console.ReadLine();
             while (true)
             {
-                try
-                {
+            try
+            {
                     Console.WriteLine("Input sensor Temperature (0-300):");
                     newSensorData.Temperature = Convert.ToInt32(Console.ReadLine());
                     break;
                 }
                 catch (Exception)
                 {
-                    
+
                 }
             }
             while (true)
@@ -74,7 +74,7 @@ namespace RelayLayer
                     Console.WriteLine("Input sensor Light (0-300):");
                     newSensorData.Light = Convert.ToInt32(Console.ReadLine());
                     break;
-                }
+            }
                 catch (Exception)
                 {
 
@@ -95,7 +95,7 @@ namespace RelayLayer
                     DataModel[] datas = new DataModel[2];
                     datas[1] = inp.StartRoomListener();
                     datas[0] = new DataModel()
-                    {
+            {
                         Light = 0,
                         Temperature = inp.OvenSensorTemp,
                         SensorName = "OVEN",
@@ -104,7 +104,7 @@ namespace RelayLayer
                     Console.WriteLine(datas[0]);
                     Console.WriteLine(datas[1]);
                     Output.SendToWebService(datas);
-                }
+            }
             });
         }
 
@@ -136,7 +136,7 @@ namespace RelayLayer
 
                     //Checks if the dataset has enough data to average out and if one second has passed
                     if (dataSet.Count > 1 && DateTime.Compare(startSecond.AddSeconds(1), sensorData[0].TimeOfData) < 0)
-                    {
+        {
                         //Averages the whole data set for oven and room data seperately
                         DataModel[] dataToSend = DataProcessor.AverageDataSet(dataSet);
                         Output.SendToWebService(dataToSend);
@@ -154,7 +154,7 @@ namespace RelayLayer
         /// </summary>
         /// <param name="secData">Holds the average data for each second, the time when it's gotten and the name of sensor</param>
         private static void sendToWebService(DataModel secData)
-            {
+        {
             Console.WriteLine("Data sent: " + secData.ToString());
             }
         }
