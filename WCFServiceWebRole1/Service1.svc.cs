@@ -83,24 +83,11 @@ namespace WCFServiceWebRole1
         /// <returns>Latest Oven temperature</returns>
         public int GetLastOvenData()
         {
-            //5 Seconds
-            TimeSpan cacheDuration = new TimeSpan(0, 0, 5);
-            DataModel ovenData = null;
-            if (ovenDataCache == null)
-            {
-                ovenDataCache = new DataModel();
-            }
-
-            if (DateTime.Now > timeOfOvenCacheCreation.Add(cacheDuration))
-            {
-                ovenData = SQLImplementation.GetInstance.RetrieveLastOvenData();
+                DataModel ovenData = SQLImplementation.GetInstance.RetrieveLastOvenData();
                 ovenDataCache = ovenData;
                 timeOfOvenCacheCreation = DateTime.Now;
                 int ovenDataNumbers = ovenData.Temperature;
                 return ovenDataNumbers;
-            }
-            int cachedOvenDataNumbers = ovenDataCache.Temperature;
-            return cachedOvenDataNumbers;
         }
 
 
