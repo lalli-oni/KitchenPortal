@@ -76,9 +76,11 @@ namespace RelayLayer
                 //Makes a regular expression matching any 3 number digits in a row.
                 MatchCollection resultMatches = Regex.Matches(results, @"\d{3}");
                 //Assigns the 2nd match to be the sensor light (1st is potentiometer)
-                int lightResult = Convert.ToInt16(resultMatches[1].Value);
+                byte lightByteValue = Convert.ToByte(resultMatches[1].Value);
+                int lightResult = Convert.ToInt16(lightByteValue);
                 //Assigns the 3rd match to be the sensor temperature
-                int tempResult = Convert.ToInt16(resultMatches[2].Value);
+                byte tempByteValue = Convert.ToByte(resultMatches[2].Value);
+                int tempResult = Convert.ToInt16(tempByteValue);
 
                 //Check to see if lightResults are valid (0 - 300)
                 //Writes a Trace message
