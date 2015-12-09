@@ -82,21 +82,9 @@ namespace WCFServiceWebRole1.DBAImplementations
                 connection.Open();
                 try
                 {
-                    using (SqlDataReader reader = sqlCommand.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                sqlOvenData.Light = reader.GetInt32(3);
-                                sqlOvenData.Temperature = reader.GetInt32(4);
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception("No records.");
-                        }
-                    }
+                    object results = sqlCommand.ExecuteScalar();
+                    sqlOvenData.Light = 1;
+                    sqlOvenData.Temperature = Convert.ToInt16(results);
                     return sqlOvenData;
                 }
                 catch (Exception e)
@@ -111,7 +99,7 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastRoomData(), connection);
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastRoomDataToday(), connection);
                 //TODO: Error handling (timeout, cooling?...)
                 DataModel sqlRoomData = new DataModel();
 
