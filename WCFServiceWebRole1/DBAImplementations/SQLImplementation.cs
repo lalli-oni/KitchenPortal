@@ -75,8 +75,8 @@ namespace WCFServiceWebRole1.DBAImplementations
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastOvenData(), connection);
-                //TODO: Error handling (timeout, cooling?...)
+                SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastOvenTemperatureToday(), connection);
+                //TODO: Error handling (timeout,no data, midnight, cooling?...)
                 DataModel sqlOvenData = new DataModel();
 
                 connection.Open();
