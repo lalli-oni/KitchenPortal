@@ -47,15 +47,7 @@ namespace WCFServiceWebRole1
         {
             return SQLImplementation.GetInstance.InsertSensorData(data).Result;
         }
-
-        /// <summary>
-        /// Cancels the set reminder (written with the assumption of only 1 reminder
-        /// </summary>
-        /// <returns>A boolean if the cancellation succeeded or not</returns>
-        public async Task<bool> CancelReminderAsync()
-        {
-            return SQLImplementation.GetInstance.CancelReminder();
-        }
+        
 
         /// <summary>
         /// Gets the latest Room temperature and light values
@@ -63,24 +55,10 @@ namespace WCFServiceWebRole1
         /// <returns>[0] = Temperature, [1] = Light</returns>
         public int[] GetLastRoomData()
         {
-            //5 Seconds
-            TimeSpan cacheDuration = new TimeSpan(0,0,5);
-            DataModel roomData = null;
-            if (roomDataCache == null)
-            {
-                roomDataCache = new DataModel();
-            }
-
-            if (DateTime.Now > timeOfRoomCacheCreation.Add(cacheDuration))
-            {
-                roomData = SQLImplementation.GetInstance.RetrieveLastRoomData();
+                DataModel roomData = SQLImplementation.GetInstance.RetrieveLastRoomData();
                 roomDataCache = roomData;
-                timeOfRoomCacheCreation = DateTime.Now;
                 int[] roomDataNumbers = { roomData.Temperature, roomData.Light };
                 return roomDataNumbers;
-            }
-            int[] cachedRoomDataNumbers = { roomDataCache.Temperature, roomDataCache.Light };
-            return cachedRoomDataNumbers;
         }
 
         /// <summary>
@@ -91,7 +69,6 @@ namespace WCFServiceWebRole1
         {
                 DataModel ovenData = SQLImplementation.GetInstance.RetrieveLastOvenData();
                 ovenDataCache = ovenData;
-                timeOfOvenCacheCreation = DateTime.Now;
                 int ovenDataNumbers = ovenData.Temperature;
                 return ovenDataNumbers;
         }
