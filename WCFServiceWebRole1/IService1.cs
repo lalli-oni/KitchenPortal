@@ -16,12 +16,11 @@ namespace WCFServiceWebRole1
     [ServiceContract]
     public interface IService1
     {
-        [OperationContract]
-        bool SaveDataAsync(DataModel data);
-
-        [OperationContract]
-        Task<bool> CancelReminderAsync();
-
+        //The Relay client is saving straight to the database so this shouldn't be needed.
+        //Leaving it in if needed for testing
+        //[OperationContract]
+        //bool SaveDataAsync(DataModel data);
+        
         [OperationContract]
         int[] GetLastRoomData();
 
@@ -55,20 +54,4 @@ namespace WCFServiceWebRole1
             set { stringValue = value; }
         } 
     }
-
-    //[DataContract]
-    //public class SensorEntity : TableEntity
-    //{
-
-    //    public SensorEntity(string type, DateTime timeOfData)
-    //    {
-    //        this.PartitionKey = type;
-    //        this.RowKey = timeOfData.ToString();
-    //    }
-
-    //    [DataMember]
-    //    public int teperature { get; set; }
-    //    [DataMember]
-    //    public int light { get; set; }
-    //}
 }

@@ -37,6 +37,12 @@ namespace WCFServiceWebRole1
             activeReminders = new List<ReminderModel>();
         }
 
+        /// <summary>
+        /// Is not used. OperationContract is commented out.
+        /// Only used for testing purposes
+        /// </summary>
+        /// <param name="data">Datamodel conforming to the format needed for the database</param>
+        /// <returns></returns>
         public bool SaveDataAsync(DataModel data)
         {
             return SQLImplementation.GetInstance.InsertSensorData(data).Result;
