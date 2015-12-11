@@ -36,18 +36,31 @@ namespace WCFServiceWebRole1.DBAImplementations
         /// </summary>
         private SQLImplementation()
         {
-            remindersClient = new Remindershandler();
+            RemindersClient = new Remindershandler();
+            ConnectionString =
+                "Data Source=kitchenportaldb.database.windows.net;Initial Catalog=KitchenPortalDb;User ID=tomas;Password=Password18";
         }
         #endregion
 
-        private Remindershandler remindersClient;
-        private const string connectionString =
-            //  "Server=tcp:kitchenportaldb.database.windows.net,1433;Database=KitchenPortalDb;User ID=tomas@kitchenportaldb;Password={Password18};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-            "Data Source=kitchenportaldb.database.windows.net;Initial Catalog=KitchenPortalDb;User ID=tomas;Password=Password18";
+        private Remindershandler _remindersClient;
+        private string _connectionString;
+
+        public Remindershandler RemindersClient
+        {
+            get { return _remindersClient; }
+            set { _remindersClient = value; }
+        }
+
+        public string ConnectionString
+        {
+            get { return _connectionString; }
+            set { _connectionString = value; }
+        }
+        
 
         public async Task<bool> InsertSensorData(DataModel data)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 string command =
                     "INSERT INTO SensorData (sensorName, timeOfData, light, desiredTemp) VALUES (@sensorName, @timeOfData, @light, @desiredTemp)";
@@ -73,7 +86,7 @@ namespace WCFServiceWebRole1.DBAImplementations
 
         public DataModel RetrieveLastOvenData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastOvenTemperatureToday(), connection);
                 //TODO: Error handling (timeout,no data, midnight, cooling?...)
@@ -83,7 +96,7 @@ namespace WCFServiceWebRole1.DBAImplementations
                 try
                 {
                     object results = sqlCommand.ExecuteScalar();
-                    sqlOvenData.Light = 1;
+                    sqlOvenData.Light = 0;
                     sqlOvenData.Temperature = Convert.ToInt16(results);
                     return sqlOvenData;
                 }
@@ -97,7 +110,7 @@ namespace WCFServiceWebRole1.DBAImplementations
 
         public DataModel RetrieveLastRoomData()
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 SqlCommand sqlCommand = new SqlCommand(SqlCommandBuilder.GetLastRoomDataToday(), connection);
                 //TODO: Error handling (timeout, cooling?...)
@@ -118,7 +131,7 @@ namespace WCFServiceWebRole1.DBAImplementations
                         }
                         else
                         {
-                            throw new Exception("No records.");
+                            throw new Exception("Nothing for today");
                         }
                     }
                     return sqlRoomData;
@@ -131,10 +144,16 @@ namespace WCFServiceWebRole1.DBAImplementations
             }
         }
 
+        /// <summary>
+        /// Checks the latest temperature today until it reaches the desiredTemp
+        /// or until the reminder in the database is changed to inactive by cancelReminder()
+        /// </summary>
+        /// <param name="desiredTemp">The temperature that will break the loop when reached</param>
+        /// <returns></returns>
         public bool CheckTemperatureReminder(int desiredTemp)
         {
             int i = 0;
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
                 //While the connection is open it checks if the desiredTemp is reached
@@ -145,7 +164,7 @@ namespace WCFServiceWebRole1.DBAImplementations
                     if (i == 0)
                     {
                         ReminderModel newReminder = new ReminderModel() { DesiredTemperature = desiredTemp, TimeOfStart = DateTime.Now};
-                        remindersClient.CreateReminder(connection, newReminder);
+                        RemindersClient.CreateReminder(connection, newReminder);
                     }
                     //How long the thread is put to sleep at the end of the loop.
                     int checkInterval = 100;
@@ -153,6 +172,10 @@ namespace WCFServiceWebRole1.DBAImplementations
                     {
                         SqlCommand checkTemperature = new SqlCommand(SqlCommandBuilder.GetLastOvenTemperatureToday(), connection);
                         object sqlResult = checkTemperature.ExecuteScalar();
+                        if (sqlResult == null)
+                        {
+                            throw new Exception("No data for today");
+                        }
                         int tempResult = -100;
                         tempResult = Convert.ToInt32(sqlResult);
 
@@ -168,42 +191,23 @@ namespace WCFServiceWebRole1.DBAImplementations
                         if (tempResult >= desiredTemp)
                         {
                             connection.Close();
-                            remindersClient.CancelReminder(connectionString);
+                            RemindersClient.CancelReminder(ConnectionString);
                             return true;
                         }
-                    }
-                    catch (NullReferenceException nullE)
-                    {
-                        connection.Close();
-                        remindersClient.CancelReminder(connectionString);
-                        return false;
                     }
                     catch (Exception e)
                     {
                         connection.Close();
-                        remindersClient.CancelReminder(connectionString);
+                        RemindersClient.CancelReminder(ConnectionString);
                         return false;
                     }
                     Thread.Sleep(checkInterval);
                     i++;
-                } while (connection.State == ConnectionState.Open && remindersClient.CheckActiveReminder(connection));
+                } while (connection.State == ConnectionState.Open && RemindersClient.CheckActiveReminder(connection));
                 
                 //TODO: Error handling (timeout, cooling?...)
                 return false;
             }
-        }
-        
-
-        public bool CancelReminder()
-        {
-            try
-            {
-                return remindersClient.CancelReminder(connectionString);
-            }
-            catch (Exception)
-            {
-            }
-            return false;
         }
     }
 }

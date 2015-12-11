@@ -28,8 +28,12 @@ namespace WCFServiceWebRole1
         int GetLastOvenData();
         
         [OperationContractAttribute(AsyncPattern = true)]
-        IAsyncResult BeginReminderAsync(int desiredTemperature, AsyncCallback callback, object asyncState);
-        bool EndReminderAsync(IAsyncResult result);
+        IAsyncResult BeginStartReminder(int desiredTemperature, AsyncCallback callback, object asyncState);
+        bool EndStartReminder(IAsyncResult result);
+
+        [OperationContractAttribute(AsyncPattern = true)]
+        IAsyncResult BeginStopReminder(AsyncCallback callback, object asyncState);
+        bool EndStopReminder(IAsyncResult result);
     }
 
 

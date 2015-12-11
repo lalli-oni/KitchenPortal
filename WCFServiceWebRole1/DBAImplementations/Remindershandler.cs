@@ -9,6 +9,11 @@ namespace WCFServiceWebRole1.DBAImplementations
 {
     public class Remindershandler
     {
+        /// <summary>
+        /// Checks whether there is an active reminder in the table
+        /// </summary>
+        /// <param name="activeConnection">The open connection to the database</param>
+        /// <returns>Whether there is an active reminder or not</returns>
         public bool CheckActiveReminder(SqlConnection activeConnection)
         {
             SqlCommand sqlCommand = new SqlCommand("SELECT * from Reminders WHERE IsActive != 0", activeConnection);
@@ -20,6 +25,30 @@ namespace WCFServiceWebRole1.DBAImplementations
             return true;
         }
 
+        /// <summary>
+        /// Checks whether there is an active reminder in the table
+        /// </summary>
+        /// <param name="conString">The connection string for the database</param>
+        /// <returns>Whether there is an active reminder or not</returns>
+        public bool CheckActiveReminder(string conString)
+        {
+            using (SqlConnection connection = new SqlConnection(conString))
+            {
+                SqlCommand sqlCommand = new SqlCommand("SELECT * from Reminders WHERE IsActive != 0", connection);
+                object sqlResult = sqlCommand.ExecuteScalar();
+                if (sqlResult == null)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Creates an active reminder in the Reminders table
+        /// </summary>
+        /// <param name="activeConnection">The open connection to the database</param>
+        /// <param name="newReminder">Model of the new reminder to put into the database</param>
         public void CreateReminder(SqlConnection activeConnection, ReminderModel newReminder)
         {
             if (CheckActiveReminder(activeConnection))
@@ -43,6 +72,11 @@ namespace WCFServiceWebRole1.DBAImplementations
             }
         }
 
+        /// <summary>
+        /// Goes into the reminder database table and changes every active reminder to false
+        /// </summary>
+        /// <param name="conString">The connection string for the database</param>
+        /// <returns>Whether it executed, doesn't say if it changed anything or not</returns>
         public bool CancelReminder(string conString)
         {
             using (SqlConnection connection = new SqlConnection(conString))

@@ -20,8 +20,6 @@ namespace WCFServiceWebRole1
     // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
     public class Service1 : IService1
     {
-        //Used to see if there are any reminders active so that multiple reminders are not created.
-        private List<ReminderModel> activeReminders;
         //Cache for the last data retrieved.
         private DataModel roomDataCache;
         //Time of cache creation
@@ -30,12 +28,6 @@ namespace WCFServiceWebRole1
         private DataModel ovenDataCache;
         //Time of cache creation
         private DateTime timeOfOvenCacheCreation;
-
-
-        public Service1()
-        {
-            activeReminders = new List<ReminderModel>();
-        }
 
         /// <summary>
         /// Is not used. OperationContract is commented out.
@@ -73,7 +65,7 @@ namespace WCFServiceWebRole1
                 return ovenDataNumbers;
         }
 
-
+    #region Start Reminder
         /// <summary>
         /// Starts a reminder that keeps on checking the last sensor data
         /// in the database to see if the desired temperature has been reached
@@ -83,30 +75,41 @@ namespace WCFServiceWebRole1
         /// </summary>
         /// <param name="temperature">The temperature that the user wants to be notified about if reached</param>
         /// <returns>True if the temperature is reached, false if something went wrong or the reminder is cancelled</returns>
-        public IAsyncResult BeginReminderAsync(int desiredTemperature, AsyncCallback callback, object asyncState)
+        public IAsyncResult BeginStartReminder(int desiredTemperature, AsyncCallback callback, object asyncState)
         {
-            if (activeReminders == null)
-            {
-                activeReminders = new List<ReminderModel>();
-            }
-            if (activeReminders.Any())
-            {
-                //If there are any active reminders it will return false.
-                //This means that the web browser will throw an exception that the reminder failed
-                //Even though the reminder might be running in another thread and will just discard it's return value
-                activeReminders.Clear();
-                return new CompletedAsyncResult<bool>(false);
-            }
-            activeReminders.Add(new ReminderModel() { DesiredTemperature = desiredTemperature, TimeOfStart = DateTime.Now });
+            ReminderModel activeReminder = new ReminderModel() { DesiredTemperature = desiredTemperature, TimeOfStart = DateTime.Now };
             CompletedAsyncResult<bool> result = new CompletedAsyncResult<bool>(SQLImplementation.GetInstance.CheckTemperatureReminder(desiredTemperature));
             return result;
         }
 
-        public bool EndReminderAsync(IAsyncResult r)
+        public bool EndStartReminder(IAsyncResult r)
         {
             CompletedAsyncResult<bool> result = r as CompletedAsyncResult<bool>;
             return result.Data;
         }
+    #endregion
+
+    #region Stop Reminder
+        /// <summary>
+        /// Stops all reminders if there are any in the activeReminders
+        /// in the database to see if the desired temperature has been reached
+        /// returns true when the temperature is reached
+        /// NOTES: No time-out, is written on the assumption that there is only one reminder
+        /// NOTES: Async implementation, is called by a method that uses these results in EndReminderAsync(result)
+        /// </summary>
+        /// <returns>True if the temperature is reached, false if something went wrong or the reminder is cancelled</returns>
+        public IAsyncResult BeginStopReminder(AsyncCallback callback, object asyncState)
+        {
+            string conString = SQLImplementation.GetInstance.ConnectionString;
+            return new CompletedAsyncResult<bool>(SQLImplementation.GetInstance.RemindersClient.CancelReminder(conString));
+        }
+
+        public bool EndStopReminder(IAsyncResult r)
+        {
+            CompletedAsyncResult<bool> result = r as CompletedAsyncResult<bool>;
+            return result.Data;
+        }
+    #endregion
 
         // Simple async result implementation.
         class CompletedAsyncResult<T> : IAsyncResult
