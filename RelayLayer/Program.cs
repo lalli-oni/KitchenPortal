@@ -146,51 +146,5 @@ namespace RelayLayer
                 }
             }
         }
-            });
-
-        /// <summary>
-        /// Sends the data average of a second to the Web Service on the Cloud
-        /// The web service then updates the information in the database.
-        /// </summary>
-        /// <param name="secData">Holds the average data for each second, the time when it's gotten and the name of sensor</param>
-        private static void sendToWebService(DataModel secData)
-        {
-            Console.WriteLine("Data sent: " + secData.ToString());
-            }
-        }
-
-        /// <summary>
-        /// Sends the data average of a second to the Web Service on the Cloud
-        /// The web service then updates the information in the database.
-        /// </summary>
-        /// <param name="secData">Holds the average data for each second, the time when it's gotten and the name of sensor</param>
-        private static void SendToWebService(DataModel[] secData)
-        {
-            Console.WriteLine("Data sent: " + secData[0].ToString());
-            Console.WriteLine("Data sent: " + secData[1].ToString());
-            Service1Client client = new Service1Client();
-            SensorEntity ovenSensorToSend = new SensorEntity() { ETag = "*", PartitionKey = "Oven", RowKey = secData[0].TimeOfData.ToString(), light = secData[0].Light, teperature = secData[0].Temperature };
-            SensorEntity roomSensorToSend = new SensorEntity() { ETag = "*", PartitionKey = "Room", RowKey = secData[1].TimeOfData.ToString(), light = secData[1].Light, teperature = secData[1].Temperature };
-            client.SaveData(ovenSensorToSend);
-            Console.ReadLine();
-        }
-
-        public static DataModel[] AverageDataSet(List<DataModel[]> dataSet)
-        {
-            int tempOvenSum = 0;
-
-            int tempRoomSum = 0;
-            int lightRoomSum = 0;
-
-            int nrOfData = dataSet.Count;
-
-            foreach (DataModel[] datas in dataSet)
-            {
-                tempOvenSum += datas[0].Temperature;
-
-                tempRoomSum += datas[1].Temperature;
-                lightRoomSum += datas[1].Light;
-            }
-        }
     }
 }
