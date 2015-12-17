@@ -8,8 +8,6 @@ using System.ServiceModel.Web;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DataTableStorage;
-using DataTableStorage.Model;
 using WCFServiceWebRole1.DBAImplementations;
 using WCFServiceWebRole1.Model;
 using DataModel = WCFServiceWebRole1.Model.DataModel;
